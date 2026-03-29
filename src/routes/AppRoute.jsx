@@ -1,3 +1,4 @@
+import React from "react";
 import { Routes, Route } from "react-router-dom";
 
 import MainLayout from "../layouts/MainLayout";
@@ -32,11 +33,9 @@ const AppRoutes = () => {
         />
       </Route>
 
-      {/* Auth routes */}
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
 
-      {/* OTP flow */}
       <Route path="/email" element={<EmailPage />} />
       <Route path="/otp" element={<OtpPage />} />
     </Routes>

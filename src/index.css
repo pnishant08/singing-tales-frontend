@@ -1,0 +1,24 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  min-height: 100%;
+}
+
+:root {
+  --bg-main: #f6f1e7;
+  --text-main: #3b2f2f;
+  --primary: #8b5e3c;
+  --primary-hover: #6f4a2d;
+  --card-bg: #ffffff;
+}
+
+body {
+  background: radial-gradient(circle at top, #f6f1e7, #e8dccb);
+  color: var(--text-main);
+  font-family: 'Playfair Display', serif, system-ui;
+}
