@@ -73,6 +73,10 @@ export default function LoginPage() {
         >
           {loading ? "Logging in..." : "Login"}
         </button>
+        <p className="switch-auth">
+          Don’t have an account?{" "}
+          <span onClick={() => navigate("/email")}>Sign up</span>
+        </p>
 
       </div>
     </div>

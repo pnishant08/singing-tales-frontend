@@ -5,7 +5,7 @@ import "./Header.css";
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const user = true; 
+  const user = JSON.parse(localStorage.getItem("user")) || null; 
 
   return (
     <header className="header">

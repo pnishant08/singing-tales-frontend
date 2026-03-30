@@ -1,0 +1,30 @@
+.hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 60px;
+  background: linear-gradient(to right, #ffe4ec, #fff);
+}
+
+.hero-content {
+  max-width: 500px;
+}
+
+.hero h1 {
+  font-size: 42px;
+  margin-bottom: 15px;
+}
+
+.hero p {
+  font-size: 18px;
+  margin-bottom: 20px;
+  color: #555;
+}
+
+.hero-buttons button {
+  margin-right: 10px;
+}
+
+.hero-image img {
+  width: 350px;
+}

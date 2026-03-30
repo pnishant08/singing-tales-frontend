@@ -1,0 +1,26 @@
+.occasions {
+  padding: 40px;
+  text-align: center;
+}
+
+.occasion-grid {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.occasion-card {
+  width: 150px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.occasion-card:hover {
+  transform: scale(1.05);
+}
+
+.occasion-card img {
+  width: 100%;
+  border-radius: 10px;
+}
