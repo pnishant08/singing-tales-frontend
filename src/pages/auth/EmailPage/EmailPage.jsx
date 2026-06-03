@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import api from "../../../services/api";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import "./EmailPage.css";
 
 export default function EmailPage() {
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
+  const { state } = useLocation();
 
   const handleSendOtp = async () => {
     if (!email.trim()) {
@@ -17,19 +18,25 @@ export default function EmailPage() {
     try {
       await api.post("/auth/send-otp", { email });
       toast.success("OTP sent");
-      navigate("/otp", { state: { email } });
+      navigate("/otp", {
+        state: {
+          email,
+          backgroundLocation: state?.backgroundLocation,
+          returnTo: state?.returnTo || "/profile",
+        },
+      });
     } catch (err) {
       toast.error(err.response?.data?.error || "Something went wrong");
     }
   };
 
   return (
-    <div className="email-wrapper">
-      <div className="email-card">
+    <div className="email-wrapper auth-screen">
+      <div className="email-card auth-card">
         
         <h1 className="brand">The Singing Tales</h1>
 
-        <h2 className="title">Welcome Back</h2>
+        <h2 className="title">Start signup</h2>
         <p className="subtitle">
           Enter your email to continue your journey
         </p>

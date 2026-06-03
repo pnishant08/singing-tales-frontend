@@ -1,11 +1,23 @@
 .featured {
-  padding: 40px;
-  text-align: center;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 44px 22px 64px;
 }
 
 .card-grid {
-  display: flex;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
-  margin-top: 20px;
+}
+
+@media (max-width: 900px) {
+  .card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
 }

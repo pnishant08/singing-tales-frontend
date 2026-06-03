@@ -1,18 +1,14 @@
 import React, { useState } from "react";
-import { useAuth } from "../../../context/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useAuth } from "../../../context/useAuth";
 import "./LoginPage.css";
 
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
-
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-  });
-
+  const { state } = useLocation();
+  const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -30,54 +26,49 @@ export default function LoginPage() {
     try {
       setLoading(true);
       await login(email, password);
-      toast.success("Welcome back ✨");
-      navigate("/profile");
+      toast.success("Welcome back");
+      navigate(state?.returnTo || "/profile", { replace: true });
     } catch (err) {
-      toast.error(err?.response?.data?.error || "Login failed");
+      toast.error(err?.response?.data?.error || err || "Login failed");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="login-wrapper">
-      <div className="login-card">
-
+    <div className="login-wrapper auth-screen">
+      <div className="login-card auth-card">
         <h1 className="brand">The Singing Tales</h1>
-
-        <h2 className="title">Welcome Back</h2>
-        <p className="subtitle">Login to continue your journey</p>
+        <h2 className="title">Welcome back</h2>
+        <p className="subtitle">Login to manage orders and saved addresses.</p>
 
         <div className="input-group">
-          <input
-            name="email"
-            type="email"
-            placeholder="Email"
-            onChange={handleChange}
-          />
+          <input name="email" type="email" placeholder="Email" onChange={handleChange} />
         </div>
 
         <div className="input-group">
-          <input
-            name="password"
-            type="password"
-            placeholder="Password"
-            onChange={handleChange}
-          />
+          <input name="password" type="password" placeholder="Password" onChange={handleChange} />
         </div>
 
-        <button
-          className="btn-primary"
-          onClick={handleLogin}
-          disabled={loading}
-        >
+        <button className="btn-primary" onClick={handleLogin} disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </button>
-        <p className="switch-auth">
-          Don’t have an account?{" "}
-          <span onClick={() => navigate("/email")}>Sign up</span>
-        </p>
 
+        <p className="switch-auth">
+          Do not have an account?{" "}
+          <span
+            onClick={() =>
+              navigate("/email", {
+                state: {
+                  backgroundLocation: state?.backgroundLocation,
+                  returnTo: state?.returnTo || "/profile",
+                },
+              })
+            }
+          >
+            Sign up
+          </span>
+        </p>
       </div>
     </div>
   );

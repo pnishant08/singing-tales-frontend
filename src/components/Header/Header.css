@@ -1,143 +1,177 @@
 .header {
-  background-color: #f6f1e7;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  font-family: 'Playfair Display', serif;
   position: sticky;
   top: 0;
   z-index: 1000;
+  background: rgba(255, 253, 248, 0.94);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(14px);
 }
 
 .container {
-  max-width: 1200px;
-  margin: auto;
-  padding: 18px 24px;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 14px 22px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 20px;
 }
 
 .logo {
-  font-size: 24px;
-  font-weight: 600;
-  color: #3b2f2f;
+  color: var(--text-main);
+  font-size: 22px;
+  font-weight: 850;
   text-decoration: none;
+  white-space: nowrap;
+}
+
+.nav {
+  display: flex;
+  gap: 18px;
+  align-items: center;
 }
 
 .nav a {
-  margin: 0 16px;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 700;
   text-decoration: none;
-  color: #5a4343;
-  position: relative;
-  transition: 0.3s;
-}
-
-.nav a::after {
-  content: "";
-  position: absolute;
-  width: 0%;
-  height: 2px;
-  background-color: #7b4a2e;
-  left: 0;
-  bottom: -5px;
-  transition: 0.3s;
 }
 
 .nav a:hover {
-  color: #7b4a2e;
-}
-
-.nav a:hover::after {
-  width: 100%;
+  color: var(--primary);
 }
 
 .actions {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
 }
 
 .cta {
-  background-color: #7b4a2e;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 6px;
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
   text-decoration: none;
-  transition: 0.3s;
-}
-
-.cta:hover {
-  background-color: #5e3722;
 }
 
 .cart {
-  font-size: 20px;
+  position: relative;
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text-main);
+  font-size: 14px;
+  font-weight: 800;
   text-decoration: none;
 }
 
-.login {
-  border: 1px solid #7b4a2e;
-  padding: 6px 14px;
-  border-radius: 4px;
-  color: #7b4a2e;
-  text-decoration: none;
-  transition: 0.3s;
+.cart strong {
+  min-width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--gold);
+  color: #241f1a;
+  font-size: 12px;
 }
 
-.login:hover {
-  background-color: #7b4a2e;
-  color: white;
+.login,
+.profile-trigger {
+  min-height: 38px;
+  border: 1px solid rgba(181, 69, 69, 0.3);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--primary);
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .profile {
   position: relative;
-  cursor: pointer;
-}
-
-.profile-trigger {
-  font-size: 14px;
 }
 
 .dropdown {
   position: absolute;
-  top: 35px;
+  top: calc(100% + 8px);
   right: 0;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  width: 180px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  padding: 10px 0;
-  z-index: 100;
+  width: 190px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: var(--shadow);
 }
 
-.dropdown a {
+.dropdown a,
+.logout {
+  width: 100%;
   display: block;
-  padding: 10px 15px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-main);
+  text-align: left;
   text-decoration: none;
-  color: #333;
-  font-size: 14px;
+  cursor: pointer;
 }
 
-.dropdown a:hover {
-  background-color: #f5f5f5;
+.dropdown a:hover,
+.logout:hover {
+  background: #f8efe8;
 }
 
 .dropdown hr {
+  border: 0;
+  border-top: 1px solid var(--border);
   margin: 8px 0;
-  border: none;
-  border-top: 1px solid #eee;
 }
 
 .logout {
-  width: 100%;
-  padding: 10px 15px;
-  background: none;
-  border: none;
-  text-align: left;
-  cursor: pointer;
-  color: #d9534f;
+  color: var(--primary);
+  font-weight: 800;
 }
 
-.logout:hover {
-  background-color: #fbeaea;
+@media (max-width: 940px) {
+  .container {
+    flex-wrap: wrap;
+  }
+
+  .nav {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+}
+
+@media (max-width: 560px) {
+  .container {
+    padding: 12px 16px;
+  }
+
+  .logo {
+    font-size: 18px;
+  }
+
+  .cta {
+    display: none;
+  }
 }

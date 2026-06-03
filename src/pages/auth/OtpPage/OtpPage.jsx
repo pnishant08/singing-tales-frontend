@@ -11,13 +11,20 @@ export default function OtpPage() {
   const navigate = useNavigate();
 
   const email = state?.email;
+  const backgroundLocation = state?.backgroundLocation;
+  const returnTo = state?.returnTo || "/profile";
 
   useEffect(() => {
     if (!email) {
       toast.error("Email missing. Please start again.");
-      navigate("/email");
+      navigate("/email", {
+        state: {
+          backgroundLocation,
+          returnTo,
+        },
+      });
     }
-  }, [email, navigate]);
+  }, [backgroundLocation, email, navigate, returnTo]);
 
   
   const handleChange = (value, index) => {
@@ -55,7 +62,13 @@ export default function OtpPage() {
       });
 
       toast.success("OTP verified");
-      navigate("/signup", { state: { email } });
+      navigate("/signup", {
+        state: {
+          email,
+          backgroundLocation,
+          returnTo,
+        },
+      });
 
     } catch (err) {
       toast.error(err.response?.data?.error || "Invalid OTP");
@@ -63,8 +76,8 @@ export default function OtpPage() {
   };
 
   return (
-    <div className="otp-wrapper">
-      <div className="otp-card">
+    <div className="otp-wrapper auth-screen">
+      <div className="otp-card auth-card">
 
         <h1 className="brand">The Singing Tales</h1>
 

@@ -8,13 +8,15 @@ export default function Hero() {
   return (
     <section className="hero">
       <div className="hero-content">
-        <h1>Send Love That Feels Personal 💌</h1>
+        <p className="eyebrow">Custom singing cards</p>
+        <h1>Send love that feels personal</h1>
         <p>
-          Create beautiful customized cards and surprise your loved ones.
+          Shop customizable singing cards, add your message, choose a tune, and send
+          a keepsake that feels made for them.
         </p>
 
         <div className="hero-buttons">
-          <button onClick={() => navigate("/create")} className="btn-primary">
+          <button onClick={() => navigate("/customize")} className="btn-primary">
             Create Your Card
           </button>
 
@@ -25,7 +27,7 @@ export default function Hero() {
       </div>
 
       <div className="hero-image">
-        <img src="/images/card-preview.png" alt="Card Preview" />
+        <img src="/images/card-preview.svg" alt="Singing card preview" />
       </div>
     </section>
   );

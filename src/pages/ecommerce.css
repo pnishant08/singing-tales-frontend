@@ -1,0 +1,436 @@
+.commerce-page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 46px 22px 70px;
+}
+
+.page-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 22px;
+  margin-bottom: 26px;
+}
+
+.page-heading h1,
+.commerce-page h1 {
+  margin: 0;
+  font-size: clamp(32px, 5vw, 52px);
+  line-height: 1.04;
+}
+
+.segmented,
+.category-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.segmented button,
+.category-pills button {
+  min-height: 38px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--text-muted);
+  padding: 8px 14px;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.segmented button.active,
+.category-pills button.active {
+  background: var(--text-main);
+  color: #fff;
+  border-color: var(--text-main);
+}
+
+.shop-toolbar {
+  display: grid;
+  grid-template-columns: minmax(220px, 360px) 1fr;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.shop-toolbar input,
+.tracking-search input,
+.commerce-page input,
+.commerce-page select,
+.commerce-page textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text-main);
+  padding: 13px 14px;
+  outline: none;
+}
+
+.shop-toolbar input:focus,
+.commerce-page input:focus,
+.commerce-page select:focus,
+.commerce-page textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(47, 111, 100, 0.14);
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.occasion-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.occasion-tile {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  padding: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.occasion-tile img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 7px;
+  margin-bottom: 12px;
+}
+
+.occasion-tile span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 20px;
+  font-weight: 850;
+}
+
+.occasion-tile small {
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.customize-layout,
+.cart-layout,
+.checkout-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 24px;
+  align-items: start;
+}
+
+.customizer-panel,
+.card-preview-panel,
+.summary-box,
+.checkout-form,
+.tracking-card,
+.profile-card,
+.address-list {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-strong);
+  padding: 24px;
+  box-shadow: 0 14px 40px rgba(61, 43, 31, 0.08);
+}
+
+.customizer-panel label,
+.checkout-form label {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.login-required {
+  display: grid;
+  gap: 4px;
+  margin: 18px 0 6px;
+  padding: 14px;
+  border: 1px solid rgba(181, 69, 69, 0.25);
+  border-radius: 8px;
+  background: #fff4f0;
+  color: var(--primary);
+}
+
+.login-required span {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.card-preview-panel {
+  position: sticky;
+  top: 96px;
+}
+
+.card-preview-panel img {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.preview-card {
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 8px;
+  padding: 22px;
+  color: #241f1a;
+  background: linear-gradient(135deg, #ffe2e2, #fff9f0);
+}
+
+.preview-card.amber {
+  background: linear-gradient(135deg, #ffe3a7, #fff8e4);
+}
+
+.preview-card.mint {
+  background: linear-gradient(135deg, #d8efe4, #f8fff9);
+}
+
+.preview-card.indigo {
+  background: linear-gradient(135deg, #dfe4ff, #fff8fd);
+}
+
+.preview-card span,
+.preview-card small {
+  font-weight: 850;
+}
+
+.preview-card p {
+  font-size: 20px;
+  line-height: 1.35;
+}
+
+.cart-list,
+.orders-list {
+  display: grid;
+  gap: 14px;
+}
+
+.cart-row,
+.order-card,
+.address-card {
+  display: grid;
+  grid-template-columns: 96px 1fr auto auto;
+  gap: 16px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  padding: 14px;
+}
+
+.cart-row img {
+  width: 96px;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 7px;
+}
+
+.cart-row h3,
+.order-card h2 {
+  margin: 0 0 6px;
+}
+
+.cart-row input {
+  width: 74px;
+}
+
+.text-button {
+  border: 0;
+  background: transparent;
+  color: var(--primary);
+  cursor: pointer;
+  font-weight: 850;
+}
+
+.summary-box {
+  position: sticky;
+  top: 96px;
+}
+
+.summary-box h2 {
+  margin-top: 0;
+}
+
+.summary-box p {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.summary-box hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+.summary-total {
+  font-size: 22px;
+}
+
+.summary-box .btn-primary,
+.checkout-form .btn-primary,
+.customizer-panel .btn-primary {
+  width: 100%;
+  margin-top: 16px;
+}
+
+.tracking-search {
+  max-width: 620px;
+  margin-bottom: 20px;
+}
+
+.tracking-steps {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin: 22px 0;
+}
+
+.tracking-steps span {
+  min-height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #f7f3ea;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.tracking-steps span.done,
+.status-pill {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: rgba(47, 111, 100, 0.22);
+}
+
+.status-pill {
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 850;
+}
+
+.order-items {
+  display: grid;
+  gap: 8px;
+}
+
+.order-items p {
+  margin: 0;
+}
+
+.order-card {
+  grid-template-columns: 1fr auto auto auto;
+}
+
+.address-list {
+  display: grid;
+  gap: 12px;
+}
+
+.address-card {
+  display: block;
+}
+
+.empty-state {
+  min-height: 360px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.empty-state.small {
+  min-height: 260px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.empty-state h1,
+.empty-state h2,
+.empty-state p {
+  margin: 0;
+}
+
+.profile-page {
+  max-width: 760px;
+}
+
+@media (max-width: 980px) {
+  .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .occasion-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .customize-layout,
+  .cart-layout,
+  .checkout-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .card-preview-panel,
+  .summary-box {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .commerce-page {
+    padding: 32px 16px 52px;
+  }
+
+  .page-heading,
+  .shop-toolbar {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .product-grid,
+  .occasion-list,
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cart-row {
+    grid-template-columns: 76px 1fr;
+  }
+
+  .cart-row img {
+    width: 76px;
+  }
+
+  .cart-row input,
+  .cart-row button {
+    grid-column: 2;
+    width: 100%;
+  }
+
+  .order-card {
+    grid-template-columns: 1fr;
+  }
+
+  .tracking-steps {
+    grid-template-columns: 1fr;
+  }
+}

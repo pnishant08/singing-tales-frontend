@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700" role="img" aria-label="Custom singing card preview">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ffe7df"/>
+      <stop offset="1" stop-color="#dcebe5"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" x2="1">
+      <stop offset="0" stop-color="#b54545"/>
+      <stop offset="1" stop-color="#d99c2b"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="700" rx="48" fill="url(#bg)"/>
+  <rect x="250" y="92" width="380" height="520" rx="28" fill="#fffdf8" stroke="#e7dac8" stroke-width="8"/>
+  <rect x="286" y="130" width="308" height="220" rx="24" fill="url(#card)"/>
+  <circle cx="440" cy="240" r="70" fill="#fff6e8" opacity=".92"/>
+  <path d="M405 250c28-52 69-52 70 0 1 41-35 72-70 95-35-23-71-54-70-95 1-52 42-52 70 0Z" fill="#b54545"/>
+  <rect x="312" y="390" width="256" height="20" rx="10" fill="#2f6f64" opacity=".85"/>
+  <rect x="335" y="430" width="210" height="16" rx="8" fill="#72675c" opacity=".38"/>
+  <rect x="360" y="462" width="160" height="16" rx="8" fill="#72675c" opacity=".25"/>
+</svg>

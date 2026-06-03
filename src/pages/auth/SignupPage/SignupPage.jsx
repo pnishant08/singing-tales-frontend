@@ -1,30 +1,36 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import api from "../../../services/api";
 import toast from "react-hot-toast";
-import "./SignupPage.css";
+import api from "../../../services/api";
+import { useAuth } from "../../../context/useAuth";
+import "./SignUpPage.css";
 
 export default function SignupPage() {
   const { state } = useLocation();
   const navigate = useNavigate();
-
+  const { refreshUser } = useAuth();
   const email = state?.email;
+  const backgroundLocation = state?.backgroundLocation;
+  const returnTo = state?.returnTo || "/profile";
 
   const [form, setForm] = useState({
     name: "",
     username: "",
     password: "",
   });
-
   const [loading, setLoading] = useState(false);
 
-  
   useEffect(() => {
     if (!email) {
       toast.error("Session expired. Start again.");
-      navigate("/email");
+      navigate("/email", {
+        state: {
+          backgroundLocation,
+          returnTo,
+        },
+      });
     }
-  }, [email, navigate]);
+  }, [backgroundLocation, email, navigate, returnTo]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -33,7 +39,6 @@ export default function SignupPage() {
   const handleSignup = async () => {
     const { name, username, password } = form;
 
-    
     if (!name || !username || !password) {
       toast.error("All fields are required");
       return;
@@ -46,17 +51,16 @@ export default function SignupPage() {
 
     try {
       setLoading(true);
-
       const res = await api.post("/auth/complete-signup", {
         email,
         ...form,
       });
 
       localStorage.setItem("token", res.data.token);
+      await refreshUser();
 
-      toast.success("Account created 🎉");
-      navigate("/profile");
-
+      toast.success("Account created");
+      navigate(returnTo, { replace: true });
     } catch (err) {
       toast.error(err.response?.data?.error || "Signup failed");
     } finally {
@@ -65,28 +69,18 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="signup-wrapper">
-      <div className="signup-card">
-
+    <div className="signup-wrapper auth-screen">
+      <div className="signup-card auth-card">
         <h1 className="brand">The Singing Tales</h1>
-
         <h2 className="title">Create Your Account</h2>
-        <p className="subtitle">Complete your journey</p>
+        <p className="subtitle">Complete your details to start customizing singing cards.</p>
 
         <div className="input-group">
-          <input
-            name="name"
-            placeholder="Full Name"
-            onChange={handleChange}
-          />
+          <input name="name" placeholder="Full name" onChange={handleChange} />
         </div>
 
         <div className="input-group">
-          <input
-            name="username"
-            placeholder="Username"
-            onChange={handleChange}
-          />
+          <input name="username" placeholder="Username" onChange={handleChange} />
         </div>
 
         <div className="input-group">
@@ -98,14 +92,9 @@ export default function SignupPage() {
           />
         </div>
 
-        <button
-          className="btn-primary"
-          onClick={handleSignup}
-          disabled={loading}
-        >
-          {loading ? "Creating..." : "Signup"}
+        <button className="btn-primary" onClick={handleSignup} disabled={loading}>
+          {loading ? "Creating..." : "Create account"}
         </button>
-
       </div>
     </div>
   );
