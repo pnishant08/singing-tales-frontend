@@ -58,15 +58,28 @@
   margin-top: 6px;
 }
 
+.auth-link-button {
+  width: 100%;
+  margin: -4px 0 8px;
+  border: 0;
+  background: transparent;
+  color: var(--primary);
+  cursor: pointer;
+  font-weight: 850;
+  text-align: right;
+}
+
 .switch-auth {
   margin: 16px 0 0;
   color: var(--text-muted);
 }
 
-.switch-auth span {
+.switch-auth span,
+.switch-auth a {
   color: var(--primary);
   cursor: pointer;
   font-weight: 850;
+  text-decoration: none;
 }
 
 @media (max-width: 480px) {

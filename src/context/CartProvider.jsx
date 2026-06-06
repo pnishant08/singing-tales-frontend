@@ -107,6 +107,22 @@ export const CartProvider = ({ children }) => {
     return order;
   };
 
+  const completeOrder = (order) => {
+    if (!order) return null;
+
+    setOrders((current) => [order, ...current]);
+    setItems([]);
+    return order;
+  };
+
+  const updateOrderStatus = (orderId, status) => {
+    setOrders((current) =>
+      current.map((order) =>
+        order.id === orderId ? { ...order, status } : order
+      )
+    );
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -118,6 +134,8 @@ export const CartProvider = ({ children }) => {
         removeItem,
         clearCart,
         placeOrder,
+        completeOrder,
+        updateOrderStatus,
       }}
     >
       {children}

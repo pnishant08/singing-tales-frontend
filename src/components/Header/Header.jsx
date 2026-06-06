@@ -53,11 +53,14 @@ const Header = () => {
                 onClick={() => setIsOpen((current) => !current)}
                 type="button"
               >
-                {user.name || user.email || "Account"} v
+                {user.name || user.email || "Account"} 
               </button>
 
               {isOpen && (
                 <div className="dropdown">
+                  {user.role === "admin" && (
+                    <Link to="/admin" onClick={() => setIsOpen(false)}>Admin</Link>
+                  )}
                   <Link to="/orders" onClick={() => setIsOpen(false)}>My Orders</Link>
                   <Link to="/profile" onClick={() => setIsOpen(false)}>Profile</Link>
                   <Link to="/addresses" onClick={() => setIsOpen(false)}>Addresses</Link>

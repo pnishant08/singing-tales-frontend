@@ -55,7 +55,7 @@ export default function TrackOrderPage() {
       ) : (
         <div className="empty-state small">
           <h2>No order selected</h2>
-          <p>Place a demo order or open your orders page to track one.</p>
+          <p>Place an order or open your orders page to track one.</p>
           <Link to="/orders" className="btn-secondary link-button">View orders</Link>
         </div>
       )}

@@ -62,17 +62,18 @@ export default function OtpPage() {
       });
 
       toast.success("OTP verified");
-      navigate("/signup", {
-        state: {
-          email,
-          backgroundLocation,
-          returnTo,
-        },
-      });
-
     } catch (err) {
       toast.error(err.response?.data?.error || "Invalid OTP");
+      return;
     }
+
+    navigate("/signup", {
+      state: {
+        email,
+        backgroundLocation,
+        returnTo,
+      },
+    });
   };
 
   return (

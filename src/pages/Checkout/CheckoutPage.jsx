@@ -3,27 +3,49 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useCart } from "../../context/useCart";
 import { useAuth } from "../../context/useAuth";
+import { readSavedAddresses } from "../../services/addressStorage";
+import api from "../../services/api";
 import "../ecommerce.css";
 
 export default function CheckoutPage() {
-  const { items, totals, placeOrder } = useCart();
+  const { items, totals, completeOrder } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [savedAddresses] = useState(() => readSavedAddresses());
+  const defaultAddress = savedAddresses.find((address) => address.isDefault);
   const [customer, setCustomer] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    address: "",
-    city: "",
-    pincode: "",
+    fullName: defaultAddress?.fullName || user?.name || "",
+    phone: defaultAddress?.phone || user?.phone || "",
+    email: user?.email || "",
+    addressLine: defaultAddress?.addressLine || "",
+    city: defaultAddress?.city || "",
+    state: defaultAddress?.state || "",
+    pincode: defaultAddress?.pincode || "",
+    country: defaultAddress?.country || "India",
   });
 
   const handleChange = (e) => {
     setCustomer({ ...customer, [e.target.name]: e.target.value });
   };
 
-  const submitOrder = () => {
+  const applySavedAddress = (addressId) => {
+    const address = savedAddresses.find((item) => String(item.id) === addressId);
+    if (!address) return;
+
+    setCustomer((current) => ({
+      ...current,
+      fullName: address.fullName,
+      phone: address.phone,
+      addressLine: address.addressLine,
+      city: address.city,
+      state: address.state,
+      pincode: address.pincode,
+      country: address.country,
+    }));
+  };
+
+  const submitOrder = async () => {
     if (!user) {
       toast.error("Please login to place your order");
       navigate("/login", {
@@ -35,7 +57,16 @@ export default function CheckoutPage() {
       return;
     }
 
-    const required = ["name", "phone", "email", "address", "city", "pincode"];
+    const required = [
+      "fullName",
+      "phone",
+      "email",
+      "addressLine",
+      "city",
+      "state",
+      "pincode",
+      "country",
+    ];
     const missing = required.some((field) => !customer[field].trim());
 
     if (missing) {
@@ -43,9 +74,36 @@ export default function CheckoutPage() {
       return;
     }
 
-    const order = placeOrder(customer);
-    toast.success("Order placed");
-    navigate(`/track?order=${order.id}`);
+    try {
+      const res = await api.post("/order", {
+        customer,
+        items,
+        totals,
+      });
+      const backendOrder = res.data;
+      const orderId = backendOrder?.id || backendOrder?._id;
+
+      if (!orderId) {
+        toast.error("Order response is missing an order ID");
+        return;
+      }
+
+      const order = completeOrder({
+        ...backendOrder,
+        id: orderId,
+        createdAt: backendOrder.createdAt || new Date().toISOString(),
+        status: backendOrder.status || "Placed",
+        eta: backendOrder.eta || "3-5 business days",
+        customer: backendOrder.customer || customer,
+        items: backendOrder.items || items,
+        totals: backendOrder.totals || totals,
+      });
+
+      toast.success("Order placed");
+      navigate(`/track?order=${order.id}`);
+    } catch (err) {
+      toast.error(err.response?.data?.error || "Order could not be placed");
+    }
   };
 
   if (!items.length) {
@@ -68,14 +126,31 @@ export default function CheckoutPage() {
             <span>You can fill details now, but you must login before placing the order.</span>
           </div>
         )}
+
+        {savedAddresses.length > 0 && (
+          <label>
+            Use saved address
+            <select defaultValue="" onChange={(e) => applySavedAddress(e.target.value)}>
+              <option value="">Choose an address</option>
+              {savedAddresses.map((address) => (
+                <option key={address.id} value={address.id}>
+                  {address.isDefault ? "Default - " : ""}{address.fullName}, {address.city}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+
         <div className="form-grid">
-          <label>Name<input name="name" value={customer.name} onChange={handleChange} /></label>
+          <label>Full name<input name="fullName" value={customer.fullName} onChange={handleChange} /></label>
           <label>Phone<input name="phone" value={customer.phone} onChange={handleChange} /></label>
           <label>Email<input name="email" type="email" value={customer.email} onChange={handleChange} /></label>
           <label>City<input name="city" value={customer.city} onChange={handleChange} /></label>
+          <label>State<input name="state" value={customer.state} onChange={handleChange} /></label>
+          <label>Pincode<input name="pincode" value={customer.pincode} onChange={handleChange} /></label>
+          <label>Country<input name="country" value={customer.country} onChange={handleChange} /></label>
         </div>
-        <label>Address<textarea name="address" rows="4" value={customer.address} onChange={handleChange} /></label>
-        <label>Pincode<input name="pincode" value={customer.pincode} onChange={handleChange} /></label>
+        <label>Address line<textarea name="addressLine" rows="4" value={customer.addressLine} onChange={handleChange} /></label>
         <button className="btn-primary" onClick={submitOrder}>
           {user ? "Place order" : "Login to place order"}
         </button>
@@ -84,11 +159,14 @@ export default function CheckoutPage() {
       <aside className="summary-box">
         <h2>Payment summary</h2>
         {items.map((item) => (
-          <p key={item.lineId}><span>{item.title} x {item.quantity}</span><strong>₹{item.price * item.quantity}</strong></p>
+          <p key={item.lineId}>
+            <span>{item.title} x {item.quantity}</span>
+            <strong>Rs. {item.price * item.quantity}</strong>
+          </p>
         ))}
         <hr />
-        <p className="summary-total"><span>Total</span><strong>₹{totals.total}</strong></p>
-        <small>Demo checkout stores your order locally for tracking.</small>
+        <p className="summary-total"><span>Total</span><strong>Rs. {totals.total}</strong></p>
+        <small>Your order details are prepared from the checkout form.</small>
       </aside>
     </section>
   );

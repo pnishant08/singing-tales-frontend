@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import api from "../../../services/api";
 import { useAuth } from "../../../context/useAuth";
 import "./SignUpPage.css";
 
 export default function SignupPage() {
   const { state } = useLocation();
   const navigate = useNavigate();
-  const { refreshUser } = useAuth();
+  const { signupWithEmail } = useAuth();
   const email = state?.email;
   const backgroundLocation = state?.backgroundLocation;
   const returnTo = state?.returnTo || "/profile";
@@ -51,14 +50,7 @@ export default function SignupPage() {
 
     try {
       setLoading(true);
-      const res = await api.post("/auth/complete-signup", {
-        email,
-        ...form,
-      });
-
-      localStorage.setItem("token", res.data.token);
-      await refreshUser();
-
+      await signupWithEmail(email, form);
       toast.success("Account created");
       navigate(returnTo, { replace: true });
     } catch (err) {

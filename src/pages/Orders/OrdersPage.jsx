@@ -23,7 +23,7 @@ export default function OrdersPage() {
                 <h2>{order.id}</h2>
                 <p className="muted">{new Date(order.createdAt).toLocaleString()}</p>
               </div>
-              <strong>₹{order.totals.total}</strong>
+              <strong>Rs. {order.totals.total}</strong>
               <span className="status-pill">{order.status}</span>
               <Link to={`/track?order=${order.id}`} className="btn-secondary link-button">
                 Track

@@ -18,16 +18,18 @@ export default function EmailPage() {
     try {
       await api.post("/auth/send-otp", { email });
       toast.success("OTP sent");
-      navigate("/otp", {
-        state: {
-          email,
-          backgroundLocation: state?.backgroundLocation,
-          returnTo: state?.returnTo || "/profile",
-        },
-      });
     } catch (err) {
       toast.error(err.response?.data?.error || "Something went wrong");
+      return;
     }
+
+    navigate("/otp", {
+      state: {
+        email,
+        backgroundLocation: state?.backgroundLocation,
+        returnTo: state?.returnTo || "/profile",
+      },
+    });
   };
 
   return (

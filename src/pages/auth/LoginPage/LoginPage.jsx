@@ -50,6 +50,20 @@ export default function LoginPage() {
           <input name="password" type="password" placeholder="Password" onChange={handleChange} />
         </div>
 
+        <button
+          className="auth-link-button"
+          type="button"
+          onClick={() =>
+            navigate("/forgot-password", {
+              state: {
+                backgroundLocation: state?.backgroundLocation,
+              },
+            })
+          }
+        >
+          Forgot password?
+        </button>
+
         <button className="btn-primary" onClick={handleLogin} disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </button>

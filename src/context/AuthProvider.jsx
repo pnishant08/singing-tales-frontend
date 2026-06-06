@@ -44,13 +44,39 @@ export const AuthProvider = ({ children }) => {
     } 
   };
 
+  const signupWithEmail = async (email, form) => {
+    const res = await api.post("/auth/complete-signup", {
+      email,
+      ...form,
+    });
+
+    localStorage.setItem("token", res.data.token);
+    await getProfile();
+  };
+
+  const updateProfile = async (updates) => {
+    const res = await api.put("/user/profile", updates);
+    setUser(res.data);
+    return res.data;
+  };
+
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, refreshUser: getProfile }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        logout,
+        loading,
+        refreshUser: getProfile,
+        signupWithEmail,
+        updateProfile,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

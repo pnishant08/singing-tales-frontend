@@ -8,6 +8,8 @@ import Login from "../pages/auth/LoginPage/LoginPage";
 import Signup from "../pages/auth/SignupPage/SignupPage";
 import EmailPage from "../pages/auth/EmailPage/EmailPage";
 import OtpPage from "../pages/auth/OtpPage/OtpPage";
+import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage/ForgotPasswordPage";
+import ResetPasswordPage from "../pages/auth/ResetPasswordPage/ResetPasswordPage";
 import ProfilePage from "../pages/ProfilePage/ProfilePage";
 import ShopPage from "../pages/Shop/ShopPage";
 import CartPage from "../pages/Cart/CartPage";
@@ -16,6 +18,7 @@ import TrackOrderPage from "../pages/TrackOrder/TrackOrderPage";
 import CustomizePage from "../pages/Customize/CustomizePage";
 import OrdersPage from "../pages/Orders/OrdersPage";
 import AddressesPage from "../pages/Addresses/AddressesPage";
+import AdminPage from "../pages/Admin/AdminPage";
 import ProtectedRoute from "./ProtectedRoute";
 
 const authRoutes = (
@@ -24,6 +27,8 @@ const authRoutes = (
     <Route path="/signup" element={<Signup />} />
     <Route path="/email" element={<EmailPage />} />
     <Route path="/otp" element={<OtpPage />} />
+    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+    <Route path="/reset-password" element={<ResetPasswordPage />} />
   </>
 );
 
@@ -99,6 +104,14 @@ const AppRoutes = () => {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <AdminPage />
+                </ProtectedRoute>
+              }
+            />
           </Route>
 
           {authRoutes}
@@ -111,6 +124,8 @@ const AppRoutes = () => {
           <Route path="/signup" element={<AuthModal><Signup /></AuthModal>} />
           <Route path="/email" element={<AuthModal><EmailPage /></AuthModal>} />
           <Route path="/otp" element={<AuthModal><OtpPage /></AuthModal>} />
+          <Route path="/forgot-password" element={<AuthModal><ForgotPasswordPage /></AuthModal>} />
+          <Route path="/reset-password" element={<AuthModal><ResetPasswordPage /></AuthModal>} />
         </Routes>
       )}
     </>
