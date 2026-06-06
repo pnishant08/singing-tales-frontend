@@ -70,38 +70,34 @@ export default function AdminPage() {
   };
 
   const saveProduct = async () => {
-    if (!productForm.title || !productForm.price) {
-      toast.error("Product title and price are required");
-      return;
-    }
-
-    const product = {
-      ...productForm,
-      id:
-        productForm.id ||
-        productForm.title.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-"),
-      price: Number(productForm.price),
-      stock: Number(productForm.stock || 0),
-      songs: productForm.songs || [],
-    };
     try {
-      if (productForm.id) {
-        const res = await api.put(`/admin/products/${product.id}`, product);
-        const savedProduct = res.data || product;
-        setProducts((current) =>
-          current.map((item) => (item.id === product.id ? savedProduct : item))
-        );
-      } else {
-        const res = await api.post("/admin/products", product);
-        setProducts((current) => [res.data || product, ...current]);
+      const formData = new FormData();
+
+      formData.append("title", productForm.title);
+      formData.append("description", productForm.description);
+      formData.append("price", productForm.price);
+      formData.append("category", productForm.category);
+
+      if (productForm.image) {
+        formData.append("image", productForm.image);
       }
 
+      const res = await api.post("/product", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      setProducts((current) => [res.data, ...current]);
       setProductForm(blankProduct);
+
       toast.success("Product saved");
     } catch (err) {
+      console.error(err);
       toast.error(err.response?.data?.error || "Product save failed");
     }
   };
+
 
   const editProduct = (product) => {
     setProductForm({
@@ -220,35 +216,50 @@ export default function AdminPage() {
                   </label>
                   <label>
                     Category
-                    <input
+                    <select
                       name="category"
                       value={productForm.category}
-                      onChange={handleProductChange} />
+                      onChange={handleProductChange}
+                    >
                       <option value="Birthday">Birthday</option>
                       <option value="Aniversary">Aniversary</option>
                       <option value="Wedding">Wedding</option>
                       <option value="Festival">Festival</option>
                       <option value="Custom">Custom</option>
+                    </select>
                   </label>
+
                   <label>
-                     Price
-                       <input 
-                         name="price" 
-                         type="number" 
-                         min="0" 
-                         value={productForm.price} 
-                         onChange={handleProductChange} />
-                    </label>
-                </div>
-                <label>Image URL<input name="image" value={productForm.image} onChange={handleProductChange} /></label>
-                <label>
-                   Description
-                    <textarea 
-                      name="description" 
-                      rows="3" 
-                      value={productForm.description} 
+                    Price
+                    <input
+                      name="price"
+                      type="number"
+                      min="0"
+                      value={productForm.price}
                       onChange={handleProductChange} />
                   </label>
+                </div>
+                <label>
+                  Product Image
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      setProductForm({
+                        ...productForm,
+                        image: e.target.files[0],
+                      })
+                    }
+                  />
+                </label>
+                <label>
+                  Description
+                  <textarea
+                    name="description"
+                    rows="3"
+                    value={productForm.description}
+                    onChange={handleProductChange} />
+                </label>
                 <label className="inline-check">
                   <input name="isActive" type="checkbox" checked={productForm.isActive} onChange={handleProductChange} />
                   Active product
@@ -262,7 +273,14 @@ export default function AdminPage() {
               <div className="admin-list">
                 {products.map((product) => (
                   <article className="admin-product-row" key={product.id}>
-                    <img src={product.image || "/images/card-preview.svg"} alt="" />
+                    <img
+                      src={
+                        product.image?.[0]
+                          ? `http://192.168.1.14:3000${product.image[0]}`
+                          : "/images/card-preview.svg"
+                      }
+                      alt={product.title}
+                    />
                     <div>
                       <h3>{product.title}</h3>
                       <p className="muted">{product.category} / {product.occasion || "General"}</p>
