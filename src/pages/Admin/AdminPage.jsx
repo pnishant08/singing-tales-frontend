@@ -8,14 +8,12 @@ const orderStatuses = ["Placed", "Crafting", "Packed", "Shipped", "Delivered"];
 
 const blankProduct = {
   title: "",
-  category: "Birthday",
-  occasion: "",
-  price: "",
-  stock: "",
-  image: "",
-  badge: "",
   description: "",
-  isActive: true,
+  price: "",
+  category: "Birthday",
+  image: "null",
+  isCustomizable: false,
+  isAvailable: true
 };
 
 export default function AdminPage() {
@@ -213,15 +211,44 @@ export default function AdminPage() {
               <div className="checkout-form">
                 <h2>{productForm.id ? "Edit card" : "Add card"}</h2>
                 <div className="form-grid">
-                  <label>Title<input name="title" value={productForm.title} onChange={handleProductChange} /></label>
-                  <label>Category<input name="category" value={productForm.category} onChange={handleProductChange} /></label>
-                  <label>Occasion<input name="occasion" value={productForm.occasion} onChange={handleProductChange} /></label>
-                  <label>Price<input name="price" type="number" min="0" value={productForm.price} onChange={handleProductChange} /></label>
-                  <label>Stock<input name="stock" type="number" min="0" value={productForm.stock} onChange={handleProductChange} /></label>
-                  <label>Badge<input name="badge" value={productForm.badge} onChange={handleProductChange} /></label>
+                  <label>
+                    Title
+                    <input
+                      name="title"
+                      value={productForm.title}
+                      onChange={handleProductChange} />
+                  </label>
+                  <label>
+                    Category
+                    <input
+                      name="category"
+                      value={productForm.category}
+                      onChange={handleProductChange} />
+                      <option value="Birthday">Birthday</option>
+                      <option value="Aniversary">Aniversary</option>
+                      <option value="Wedding">Wedding</option>
+                      <option value="Festival">Festival</option>
+                      <option value="Custom">Custom</option>
+                  </label>
+                  <label>
+                     Price
+                       <input 
+                         name="price" 
+                         type="number" 
+                         min="0" 
+                         value={productForm.price} 
+                         onChange={handleProductChange} />
+                    </label>
                 </div>
                 <label>Image URL<input name="image" value={productForm.image} onChange={handleProductChange} /></label>
-                <label>Description<textarea name="description" rows="3" value={productForm.description} onChange={handleProductChange} /></label>
+                <label>
+                   Description
+                    <textarea 
+                      name="description" 
+                      rows="3" 
+                      value={productForm.description} 
+                      onChange={handleProductChange} />
+                  </label>
                 <label className="inline-check">
                   <input name="isActive" type="checkbox" checked={productForm.isActive} onChange={handleProductChange} />
                   Active product

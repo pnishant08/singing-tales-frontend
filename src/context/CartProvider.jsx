@@ -1,78 +1,65 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { CartContext } from "./CartContext";
+import api from "../services/api"
 
-const CART_KEY = "singing_tales_cart";
-const ORDERS_KEY = "singing_tales_orders";
-
-const readStorage = (key, fallback) => {
-  try {
-    const value = localStorage.getItem(key);
-    return value ? JSON.parse(value) : fallback;
-  } catch {
-    return fallback;
-  }
-};
-
-const buildLineId = (product, customization = {}) => {
-  const customKey = JSON.stringify(customization);
-  return `${product.id}-${btoa(unescape(encodeURIComponent(customKey))).slice(0, 10)}`;
-};
 
 export const CartProvider = ({ children }) => {
-  const [items, setItems] = useState(() => readStorage(CART_KEY, []));
-  const [orders, setOrders] = useState(() => readStorage(ORDERS_KEY, []));
+  const [items, setItems] = useState([]);
+  const [orders, setOrders] = useState([]);
 
-  useEffect(() => {
-    localStorage.setItem(CART_KEY, JSON.stringify(items));
-  }, [items]);
-
-  useEffect(() => {
-    localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
-  }, [orders]);
-
-  const addItem = (product, quantity = 1, customization = {}) => {
-    const lineId = buildLineId(product, customization);
-
-    setItems((current) => {
-      const existing = current.find((item) => item.lineId === lineId);
-
-      if (existing) {
-        return current.map((item) =>
-          item.lineId === lineId
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
-      }
-
-      return [
-        ...current,
-        {
-          lineId,
-          productId: product.id,
-          title: product.title,
-          price: product.price,
-          image: product.image,
-          quantity,
-          customization,
-        },
-      ];
-    });
+  const fetchCart=async()=>{
+    try{
+      const res=await api.get("/cart");
+      setItems(res.data.items||[]);
+    }catch(err){
+      console.log(err);
+    }
   };
 
-  const updateQuantity = (lineId, quantity) => {
-    const nextQuantity = Math.max(1, Number(quantity) || 1);
-    setItems((current) =>
-      current.map((item) =>
-        item.lineId === lineId ? { ...item, quantity: nextQuantity } : item
-      )
-    );
+  useEffect(()=>{
+    fetchCart();
+  },[]);
+
+
+ const addItem=async(CSSMathProduct,quantity=1)=>{
+    try{
+      await api.post("/cart",{
+        productId:product._id,
+        quantity,
+      });
+      await fetchCart();
+    }catch(err){
+      console.log(err);
+    }
+ };
+  const updateQuantity = async (itemId, quantity) => {
+    try{
+       await api.put(`/cart/${itemId}`,{
+        quantity,
+       });
+       await fetchCart();
+    }catch(err){
+      console.log(err);
+    }
   };
 
-  const removeItem = (lineId) => {
-    setItems((current) => current.filter((item) => item.lineId !== lineId));
+  const removeItem =async (itemId) => {
+    try{
+      await api.delete(`/cart/${itemId}`);
+      await fetchCart();
+    }catch(err){
+      console.log(err);
+    }
   };
 
-  const clearCart = () => setItems([]);
+  const clearCart = async () => {
+    try{
+      await api.delete("/carts");
+      setItems([]);
+    }catch(err){
+      console.log(err);
+    }
+  }
 
   const totals = useMemo(() => {
     const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -89,39 +76,26 @@ export const CartProvider = ({ children }) => {
     };
   }, [items]);
 
-  const placeOrder = (customer) => {
-    if (!items.length) return null;
 
-    const order = {
-      id: `ST${Date.now().toString().slice(-8)}`,
-      createdAt: new Date().toISOString(),
-      status: "Crafting",
-      eta: "3-5 business days",
-      customer,
-      items,
-      totals,
-    };
+  const fetchOrders=async()=>{
+    try{
+      const res=await api.get("/order");
+      setOrders(res.data);
+    }catch(err){
+      console.log(err);
+    }
+  }
 
-    setOrders((current) => [order, ...current]);
-    setItems([]);
-    return order;
+  const placeOrder = async() => {
+     try{
+      const res= await api.post("/order");
+      await fetchCart();
+      await fetchOrders();
+     }catch(err){
+      console.log(err)
+     }
   };
 
-  const completeOrder = (order) => {
-    if (!order) return null;
-
-    setOrders((current) => [order, ...current]);
-    setItems([]);
-    return order;
-  };
-
-  const updateOrderStatus = (orderId, status) => {
-    setOrders((current) =>
-      current.map((order) =>
-        order.id === orderId ? { ...order, status } : order
-      )
-    );
-  };
 
   return (
     <CartContext.Provider
@@ -134,8 +108,8 @@ export const CartProvider = ({ children }) => {
         removeItem,
         clearCart,
         placeOrder,
-        completeOrder,
-        updateOrderStatus,
+        fetchOrders,
+        fetchCart,
       }}
     >
       {children}
