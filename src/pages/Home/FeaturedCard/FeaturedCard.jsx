@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { Link } from "react-router-dom";
 import Card from "../../../components/common/Card/Card";
 import "./FeaturedCard.css";
+import api from "../../../services/api";
 
 export default function FeaturedCards() {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3000/api/product")
+    api
+      .get("/product")
       .then((res) => setProducts(res.data))
       .catch(console.error);
   }, []);

@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { Link } from "react-router-dom";
 import "./Occasions.css";
+import api from "../../../services/api";
 
 export default function Occasions() {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:3000/api/product")
+    api.get("/product")
       .then((res) => {
         const uniqueCategories = [
           ...new Set(res.data.map((p) => p.category))
