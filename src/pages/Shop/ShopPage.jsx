@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import Card from "../../components/common/Card/Card";
+import Card from "../../components/Card/Card";
 import api from "../../services/api";
 import "../ecommerce.css";
 

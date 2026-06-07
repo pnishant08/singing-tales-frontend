@@ -4,11 +4,10 @@ import toast from "react-hot-toast";
 import { useCart } from "../../context/useCart";
 import { useAuth } from "../../context/useAuth";
 import { readSavedAddresses } from "../../services/addressStorage";
-import api from "../../services/api";
 import "../ecommerce.css";
 
 export default function CheckoutPage() {
-  const { items, totals, completeOrder } = useCart();
+  const { items, totals, placeOrder } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -67,20 +66,29 @@ export default function CheckoutPage() {
       "pincode",
       "country",
     ];
-    const missing = required.some((field) => !customer[field].trim());
-
+    const missing = required.some((field) => {
+      const value = customer[field];
+      return !String(value || "").trim();
+    });
     if (missing) {
       toast.error("Please fill all delivery details");
       return;
     }
 
     try {
-      const res = await api.post("/order", {
-        customer,
-        items,
-        totals,
+      const backendOrder = await placeOrder({
+        shippingAddress: {
+          fullName: customer.fullName,
+          phone: customer.phone,
+          email: customer.email,
+          addressLine: customer.addressLine,
+          city: customer.city,
+          state: customer.state,
+          pincode: customer.pincode,
+          country: customer.country,
+        },
+        paymentMethod: "COD",
       });
-      const backendOrder = res.data;
       const orderId = backendOrder?.id || backendOrder?._id;
 
       if (!orderId) {
@@ -88,19 +96,9 @@ export default function CheckoutPage() {
         return;
       }
 
-      const order = completeOrder({
-        ...backendOrder,
-        id: orderId,
-        createdAt: backendOrder.createdAt || new Date().toISOString(),
-        status: backendOrder.status || "Placed",
-        eta: backendOrder.eta || "3-5 business days",
-        customer: backendOrder.customer || customer,
-        items: backendOrder.items || items,
-        totals: backendOrder.totals || totals,
-      });
 
       toast.success("Order placed");
-      navigate(`/track?order=${order.id}`);
+      navigate(`/track?order=${backendOrder._id}`);
     } catch (err) {
       toast.error(err.response?.data?.error || "Order could not be placed");
     }
@@ -159,9 +157,11 @@ export default function CheckoutPage() {
       <aside className="summary-box">
         <h2>Payment summary</h2>
         {items.map((item) => (
-          <p key={item.lineId}>
-            <span>{item.title} x {item.quantity}</span>
-            <strong>Rs. {item.price * item.quantity}</strong>
+          <p key={item._id}>
+            <span>{item.product?.title} x {item.quantity}</span>
+            <strong>
+              Rs. {(item.product?.price || 0) * item.quantity}
+            </strong>
           </p>
         ))}
         <hr />

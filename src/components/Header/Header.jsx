@@ -59,7 +59,7 @@ const Header = () => {
               {isOpen && (
                 <div className="dropdown">
                   {user.role === "admin" && (
-                    <Link to="/admin" onClick={() => setIsOpen(false)}>Admin</Link>
+                    <Link to="/admin" onClick={() => setIsOpen(false)}>Admin Dashboard</Link>
                   )}
                   <Link to="/orders" onClick={() => setIsOpen(false)}>My Orders</Link>
                   <Link to="/profile" onClick={() => setIsOpen(false)}>Profile</Link>

@@ -1,10 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { useCart } from "../../context/useCart";
 import api, { getImageUrl } from "../../services/api";
 import "../ecommerce.css";
 
-const orderStatuses = ["Placed", "Crafting", "Packed", "Shipped", "Delivered"];
+const orderStatuses = [
+  "placed",
+  "processing",
+  "shipped",
+  "delivered",
+  "cancelled"
+];
 
 const blankProduct = {
   title: "",
@@ -18,7 +23,6 @@ const blankProduct = {
 };
 
 export default function AdminPage() {
-  const { updateOrderStatus } = useCart();
   const [activeTab, setActiveTab] = useState("products");
   const [products, setProducts] = useState([]);
   const [adminOrders, setAdminOrders] = useState([]);
@@ -85,16 +89,38 @@ export default function AdminPage() {
         formData.append("image", productForm.image || "");
       }
 
-      const res = await api.post("/product", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      let res;
 
-      setProducts((current) => [res.data, ...current]);
-      setProductForm(blankProduct);
+      if (productForm._id) {
+        // Update existing product
+        res = await api.put(`/product/${productForm._id}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      } else {
+        // Create new product
+        res = await api.post("/product", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      };
 
-      toast.success("Product saved");
+
+      if (productForm._id) {
+        setProducts((current) =>
+          current.map((item) =>
+            item._id === productForm._id ? res.data : item
+          )
+        );
+        setProductForm(blankProduct);
+        toast.success("Product updated");
+      } else {
+        setProducts((current) => [res.data, ...current]);
+        toast.success("Product created");
+        setProductForm(blankProduct);
+      }
     } catch (err) {
       console.error(err);
       toast.error(err.response?.data?.error || "Product save failed");
@@ -112,37 +138,41 @@ export default function AdminPage() {
     setActiveTab("products");
   };
 
-  const toggleProductActive = async (productId) => {
+  const toggleProductAvailable = async (productId) => {
     const product = products.find((item) => item._id === productId);
     if (!product) return;
 
     try {
-      const res = await api.patch(`/admin/products/${productId}`, {
-        isActive: !product.isActive,
+      const res = await api.put(`/product/${productId}`, {
+        isAvailable: !product.isAvailable,
       });
-      const updatedProduct = res.data || { ...product, isActive: !product.isActive };
+      const updatedProduct = res.data || { ...product, isActive: !product.isAvailable };
       setProducts((current) =>
         current.map((item) => (item._id === productId ? updatedProduct : item))
       );
+      toast.success("Product Hidden");
     } catch (err) {
-      toast.error(err.response?.data?.error || "Product update failed");
+      toast.error(err.response?.data?.error || "Product hidden failed");
     }
   };
 
   const handleStatusChange = async (orderId, status) => {
     try {
-      const res = await api.patch(`/admin/orders/${orderId}/status`, { status });
-      const updatedOrder = res.data;
+      const res = await api.put(`/order/${orderId}/status`, {
+        orderStatus: status,
+      });
+
       setAdminOrders((current) =>
         current.map((order) =>
-          order._id === orderId ? updatedOrder || { ...order, status } : order
+          order._id === orderId ? res.data : order
         )
       );
-      updateOrderStatus(orderId, status);
+
       toast.success("Order status updated");
     } catch (err) {
-      toast.error(err.response?.data?.error || "Order status update failed");
-    }
+  console.error("STATUS UPDATE ERROR:", err.response?.data || err);
+  toast.error(err.response?.data?.error || "Failed to update status");
+}
   };
 
   const updateUser = async (email, updates) => {
@@ -288,16 +318,16 @@ export default function AdminPage() {
               <div className="admin-list">
                 {products.map((product) => (
                   <article className="admin-product-row" key={product._id}>
-                   <img src={getImageUrl(product.image)} alt={product.title} />
+                    <img src={getImageUrl(product.image)} alt={product.title} />
                     <div>
                       <h3>{product.title}</h3>
                       <p className="muted">{product.category} / {product.occasion || "General"}</p>
                       <p>Rs. {product.price} / Stock {product.stock ?? 0}</p>
                     </div>
-                    <span className="status-pill">{product.isActive === false ? "Hidden" : "Active"}</span>
+                    <span className="status-pill">{product.isAvailable === false ? "Hidden" : "Active"}</span>
                     <button className="btn-secondary compact" onClick={() => editProduct(product)} type="button">Edit</button>
-                    <button className="text-button" onClick={() => toggleProductActive(product._id)} type="button">
-                      {product.isActive === false ? "Show" : "Hide"}
+                    <button className="text-button" onClick={() => toggleProductAvailable(product._id)} type="button">
+                      {product.isAvailable === false ? "Show" : "Hide"}
                     </button>
                   </article>
                 ))}
@@ -315,8 +345,10 @@ export default function AdminPage() {
                     <p>{order.customer?.fullName || order.customer?.name || "Customer"} / Rs. {order.totals?.total || 0}</p>
                   </div>
                   <select
-                    value={order.status}
-                    onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                    value={order.orderStatus}
+                    onChange={(e) =>
+                      handleStatusChange(order._id, e.target.value)
+                    }
                   >
                     {orderStatuses.map((status) => (
                       <option key={status} value={status}>{status}</option>

@@ -1,14 +1,13 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { useCart } from "../../../context/useCart";
-import { getImageUrl } from "../../../services/api";
+import { useCart } from "../../context/useCart";
+import { getImageUrl } from "../../services/api";
 import "./Card.css";
 
 export default function Card({ data }) {
   const { addItem } = useCart();
   const navigate = useNavigate();
-  console.log(data)
   const productId = data._id || data.id;
   const imageUrl = getImageUrl(data.image);
 

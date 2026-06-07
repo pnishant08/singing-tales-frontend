@@ -1,20 +1,37 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useCart } from "../../context/useCart";
 import "../ecommerce.css";
 
-const steps = ["Placed", "Crafting", "Packed", "Shipped", "Delivered"];
+
+const steps = [
+  "placed",
+  "processing",
+  "shipped",
+  "delivered",
+  "cancelled"
+];
 
 export default function TrackOrderPage() {
   const [params] = useSearchParams();
-  const { orders } = useCart();
+  const { orders, fetchOrders } = useCart();
   const [orderId, setOrderId] = useState(params.get("order") || "");
 
-  const order = useMemo(
-    () => orders.find((item) => item.id.toLowerCase() === orderId.trim().toLowerCase()),
-    [orderId, orders]
-  );
-  const activeStep = order ? Math.max(1, steps.indexOf(order.status)) : -1;
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const order = useMemo(() => {
+    return orders.find(
+      (item) =>
+        String(item._id).toLowerCase() ===
+        orderId.trim().toLowerCase()
+    );
+  }, [orderId, orders]);
+
+  const activeStep = order
+    ? Math.max(0, steps.indexOf(order.orderStatus || "Placed"))
+    : -1;
 
   return (
     <section className="commerce-page track-page">
@@ -27,7 +44,7 @@ export default function TrackOrderPage() {
 
       <div className="tracking-search">
         <input
-          placeholder="Enter order ID, for example ST12345678"
+          placeholder="Enter order ID"
           value={orderId}
           onChange={(e) => setOrderId(e.target.value)}
         />
@@ -36,9 +53,13 @@ export default function TrackOrderPage() {
       {order ? (
         <div className="tracking-card">
           <div>
-            <h2>Order {order.id}</h2>
-            <p className="muted">Estimated delivery: {order.eta}</p>
+            <h2>Order {order._id}</h2>
+            <p className="muted">
+              Estimated delivery: {order.eta || "3-5 business days"}
+            </p>
+            
           </div>
+
           <div className="tracking-steps">
             {steps.map((step, index) => (
               <span key={step} className={index <= activeStep ? "done" : ""}>
@@ -46,9 +67,12 @@ export default function TrackOrderPage() {
               </span>
             ))}
           </div>
+
           <div className="order-items">
-            {order.items.map((item) => (
-              <p key={item.lineId}>{item.title} x {item.quantity}</p>
+            {order.items?.map((item) => (
+              <p key={item._id}>
+                {item.product?.title || "Product"} x {item.quantity}
+              </p>
             ))}
           </div>
         </div>
@@ -56,7 +80,9 @@ export default function TrackOrderPage() {
         <div className="empty-state small">
           <h2>No order selected</h2>
           <p>Place an order or open your orders page to track one.</p>
-          <Link to="/orders" className="btn-secondary link-button">View orders</Link>
+          <Link to="/orders" className="btn-secondary link-button">
+            View orders
+          </Link>
         </div>
       )}
     </section>
