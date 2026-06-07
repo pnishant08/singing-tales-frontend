@@ -43,3 +43,38 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+.occasion-slider {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 10px 0;
+  scrollbar-width: none;
+}
+
+.occasion-slider::-webkit-scrollbar {
+  display: none;
+}
+
+.occasion-card {
+  min-width: 180px;
+  height: 100px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 16px;
+  background: white;
+
+  box-shadow: 0 4px 12px rgba(0,0,0,.08);
+
+  text-decoration: none;
+  color: #222;
+
+  transition: .3s;
+}
+
+.occasion-card:hover {
+  transform: translateY(-5px);
+}

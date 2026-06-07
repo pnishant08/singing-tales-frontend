@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useCart } from "../../context/useCart";
-import api from "../../services/api";
+import api, { getImageUrl } from "../../services/api";
 import "../ecommerce.css";
 
 const orderStatuses = ["Placed", "Crafting", "Packed", "Shipped", "Delivered"];
@@ -11,7 +11,8 @@ const blankProduct = {
   description: "",
   price: "",
   category: "Birthday",
-  image: "null",
+  image: "",
+  imageFile: null,
   isCustomizable: false,
   isAvailable: true
 };
@@ -78,8 +79,10 @@ export default function AdminPage() {
       formData.append("price", productForm.price);
       formData.append("category", productForm.category);
 
-      if (productForm.image) {
-        formData.append("image", productForm.image);
+      if (productForm.imageFile) {
+        formData.append("image", productForm.imageFile);
+      } else {
+        formData.append("image", productForm.image || "");
       }
 
       const res = await api.post("/product", formData, {
@@ -110,7 +113,7 @@ export default function AdminPage() {
   };
 
   const toggleProductActive = async (productId) => {
-    const product = products.find((item) => item.id === productId);
+    const product = products.find((item) => item._id === productId);
     if (!product) return;
 
     try {
@@ -119,7 +122,7 @@ export default function AdminPage() {
       });
       const updatedProduct = res.data || { ...product, isActive: !product.isActive };
       setProducts((current) =>
-        current.map((item) => (item.id === productId ? updatedProduct : item))
+        current.map((item) => (item._id === productId ? updatedProduct : item))
       );
     } catch (err) {
       toast.error(err.response?.data?.error || "Product update failed");
@@ -132,7 +135,7 @@ export default function AdminPage() {
       const updatedOrder = res.data;
       setAdminOrders((current) =>
         current.map((order) =>
-          order.id === orderId ? updatedOrder || { ...order, status } : order
+          order._id === orderId ? updatedOrder || { ...order, status } : order
         )
       );
       updateOrderStatus(orderId, status);
@@ -155,6 +158,8 @@ export default function AdminPage() {
       toast.error(err.response?.data?.error || "User update failed");
     }
   };
+
+
 
   return (
     <section className="commerce-page admin-page">
@@ -205,7 +210,7 @@ export default function AdminPage() {
           {activeTab === "products" && (
             <div className="admin-grid">
               <div className="checkout-form">
-                <h2>{productForm.id ? "Edit card" : "Add card"}</h2>
+                <h2>{productForm._id ? "Edit card" : "Add card"}</h2>
                 <div className="form-grid">
                   <label>
                     Title
@@ -240,14 +245,24 @@ export default function AdminPage() {
                   </label>
                 </div>
                 <label>
-                  Product Image
+                  Image URL
+                  <input
+                    name="image"
+                    value={productForm.image}
+                    onChange={handleProductChange}
+                    placeholder="https://example.com/image.jpg"
+                  />
+                </label>
+
+                <label>
+                  Upload Image
                   <input
                     type="file"
                     accept="image/*"
                     onChange={(e) =>
                       setProductForm({
                         ...productForm,
-                        image: e.target.files[0],
+                        imageFile: e.target.files[0],
                       })
                     }
                   />
@@ -272,15 +287,8 @@ export default function AdminPage() {
 
               <div className="admin-list">
                 {products.map((product) => (
-                  <article className="admin-product-row" key={product.id}>
-                    <img
-                      src={
-                        product.image?.[0]
-                          ? `http://192.168.1.14:3000${product.image[0]}`
-                          : "/images/card-preview.svg"
-                      }
-                      alt={product.title}
-                    />
+                  <article className="admin-product-row" key={product._id}>
+                   <img src={getImageUrl(product.image)} alt={product.title} />
                     <div>
                       <h3>{product.title}</h3>
                       <p className="muted">{product.category} / {product.occasion || "General"}</p>
@@ -288,7 +296,7 @@ export default function AdminPage() {
                     </div>
                     <span className="status-pill">{product.isActive === false ? "Hidden" : "Active"}</span>
                     <button className="btn-secondary compact" onClick={() => editProduct(product)} type="button">Edit</button>
-                    <button className="text-button" onClick={() => toggleProductActive(product.id)} type="button">
+                    <button className="text-button" onClick={() => toggleProductActive(product._id)} type="button">
                       {product.isActive === false ? "Show" : "Hide"}
                     </button>
                   </article>
@@ -300,15 +308,15 @@ export default function AdminPage() {
           {activeTab === "orders" && (
             <div className="admin-list">
               {adminOrders.length ? adminOrders.map((order) => (
-                <article className="admin-order-row" key={order.id}>
+                <article className="admin-order-row" key={order._id}>
                   <div>
-                    <h3>{order.id}</h3>
+                    <h3>{order._id}</h3>
                     <p className="muted">{new Date(order.createdAt).toLocaleString()}</p>
                     <p>{order.customer?.fullName || order.customer?.name || "Customer"} / Rs. {order.totals?.total || 0}</p>
                   </div>
                   <select
                     value={order.status}
-                    onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                    onChange={(e) => handleStatusChange(order._id, e.target.value)}
                   >
                     {orderStatuses.map((status) => (
                       <option key={status} value={status}>{status}</option>
