@@ -1,21 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import "./Occasions.css";
-import api from "../../../services/api";
+
+const occasions = ["Birthday", "Anniversary", "Wedding", "Festival", "Custom"];
 
 export default function Occasions() {
-  const [categories, setCategories] = useState([]);
-
-  useEffect(() => {
-    api.get("/product")
-      .then((res) => {
-        const uniqueCategories = [
-          ...new Set(res.data.map((p) => p.category))
-        ];
-        setCategories(uniqueCategories);
-      });
-  }, []);
-
   return (
     <section className="occasions">
       <div className="section-heading">
@@ -24,13 +13,13 @@ export default function Occasions() {
       </div>
 
       <div className="occasion-slider occasion-grid">
-        {categories.map((category) => (
+        {occasions.map((occasion) => (
           <Link
-            key={category}
-            to={`/occasion/${category}`}
+            key={occasion}
+            to={`/shop?occasion=${occasion}`}
             className="occasion-card"
           >
-            <span>{category}</span>
+            <span>{occasion}</span>
           </Link>
         ))}
       </div>

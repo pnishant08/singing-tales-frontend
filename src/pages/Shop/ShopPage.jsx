@@ -2,13 +2,18 @@ import React, { useEffect, useMemo, useState } from "react";
 import Card from "../../components/Card/Card";
 import api from "../../services/api";
 import "../ecommerce.css";
+import { useSearchParams } from "react-router-dom";
 
-export default function ShopPage({ initialView = "products" }) {
+export default function ShopPage() {
   const [products, setProducts] = useState([]);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
-  const [view, setView] = useState(initialView);
   const [loading, setLoading] = useState(true);
+
+  const [searchParams] = useSearchParams();
+  const selectedOccasion = searchParams.get("occasion");
+
+  const categories = ["All", "Vintage", "Floral", "Modern", "Minimal", "Luxury"];
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -25,75 +30,38 @@ export default function ShopPage({ initialView = "products" }) {
     fetchProducts();
   }, []);
 
-  const categories = useMemo(() => {
-    return ["All", ...new Set(products.map((item) => item.category).filter(Boolean))];
-  }, [products]);
-
-  const occasions = useMemo(() => {
-    return [...new Set(products.map((item) => item.category).filter(Boolean))];
-  }, [products]);
-
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       const matchesCategory =
         category === "All" || product.category === category;
 
-      const searchText = `${product.title} ${product.category} ${product.description}`.toLowerCase();
+      const matchesOccasion =
+        !selectedOccasion || product.occasion === selectedOccasion;
+
+      const searchText = `${product.title} ${product.category} ${product.occasion} ${product.description}`.toLowerCase();
 
       const matchesQuery = searchText.includes(query.toLowerCase());
 
-      return matchesCategory && matchesQuery;
+      return matchesCategory && matchesOccasion && matchesQuery;
     });
-  }, [products, category, query]);
+  }, [products, category, query, selectedOccasion]);
 
   return (
     <section className="commerce-page">
       <div className="page-heading">
         <div>
           <p className="eyebrow">Shop singing cards</p>
-          <h1>Personal cards for every celebration</h1>
-        </div>
-
-        <div className="segmented">
-          <button
-            type="button"
-            className={view === "products" ? "active" : ""}
-            onClick={() => setView("products")}
-          >
-            Products
-          </button>
-
-          <button
-            type="button"
-            className={view === "occasions" ? "active" : ""}
-            onClick={() => setView("occasions")}
-          >
-            Occasions
-          </button>
+          <h1>
+            {selectedOccasion
+              ? `${selectedOccasion} Cards`
+              : "Personal cards for every celebration"}
+          </h1>
         </div>
       </div>
 
       {loading ? (
         <div className="empty-state">
           <h2>Loading products...</h2>
-        </div>
-      ) : view === "occasions" ? (
-        <div className="occasion-list">
-          {occasions.map((item) => (
-            <button
-              key={item}
-              type="button"
-              className="occasion-tile"
-              onClick={() => {
-                setCategory(item);
-                setQuery("");
-                setView("products");
-              }}
-            >
-              <span>{item}</span>
-              <small>Explore {item} singing cards</small>
-            </button>
-          ))}
         </div>
       ) : (
         <>

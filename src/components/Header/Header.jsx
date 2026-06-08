@@ -53,7 +53,7 @@ const Header = () => {
                 onClick={() => setIsOpen((current) => !current)}
                 type="button"
               >
-                {user.name || user.email || "Account"} 
+                {user.name || user.email || "Account"}
               </button>
 
               {isOpen && (

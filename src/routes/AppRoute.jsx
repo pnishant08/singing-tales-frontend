@@ -20,6 +20,7 @@ import OrdersPage from "../pages/Orders/OrdersPage";
 import AddressesPage from "../pages/Addresses/AddressesPage";
 import AdminPage from "../pages/Admin/AdminPage";
 import ProtectedRoute from "./ProtectedRoute";
+import OccasionsPage from "../pages/ecommerce/OccasionsPage";
 
 const authRoutes = (
   <>
@@ -72,12 +73,12 @@ const AppRoutes = () => {
           <Route element={<MainLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/shop" element={<ShopPage />} />
-            <Route path="/occasions" element={<ShopPage initialView="occasions" />} />
             <Route path="/customize" element={<CustomizePage />} />
             <Route path="/create" element={<CustomizePage />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/track" element={<TrackOrderPage />} />
+            <Route path="/occasions" element={<OccasionsPage />} />
 
             {/* Protected */}
             <Route

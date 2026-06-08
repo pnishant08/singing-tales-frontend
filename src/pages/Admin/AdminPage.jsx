@@ -15,7 +15,8 @@ const blankProduct = {
   title: "",
   description: "",
   price: "",
-  category: "Birthday",
+  category: "Vintage",
+  occasion: "Birthday",
   image: "",
   imageFile: null,
   isCustomizable: false,
@@ -82,6 +83,7 @@ export default function AdminPage() {
       formData.append("description", productForm.description);
       formData.append("price", productForm.price);
       formData.append("category", productForm.category);
+      formData.append("occasion", productForm.occasion);
 
       if (productForm.imageFile) {
         formData.append("image", productForm.imageFile);
@@ -170,9 +172,9 @@ export default function AdminPage() {
 
       toast.success("Order status updated");
     } catch (err) {
-  console.error("STATUS UPDATE ERROR:", err.response?.data || err);
-  toast.error(err.response?.data?.error || "Failed to update status");
-}
+      console.error("STATUS UPDATE ERROR:", err.response?.data || err);
+      toast.error(err.response?.data?.error || "Failed to update status");
+    }
   };
 
   const updateUser = async (email, updates) => {
@@ -251,13 +253,20 @@ export default function AdminPage() {
                   </label>
                   <label>
                     Category
-                    <select
-                      name="category"
-                      value={productForm.category}
-                      onChange={handleProductChange}
-                    >
+                    <select name="category" value={productForm.category} onChange={handleProductChange}>
+                      <option value="Vintage">Vintage</option>
+                      <option value="Floral">Floral</option>
+                      <option value="Modern">Modern</option>
+                      <option value="Minimal">Minimal</option>
+                      <option value="Luxury">Luxury</option>
+                    </select>
+                  </label>
+
+                  <label>
+                    Occasion
+                    <select name="occasion" value={productForm.occasion} onChange={handleProductChange}>
                       <option value="Birthday">Birthday</option>
-                      <option value="Aniversary">Aniversary</option>
+                      <option value="Anniversary">Anniversary</option>
                       <option value="Wedding">Wedding</option>
                       <option value="Festival">Festival</option>
                       <option value="Custom">Custom</option>
