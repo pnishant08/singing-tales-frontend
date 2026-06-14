@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import api, { getImageUrl } from "../../services/api";
 import "../ecommerce.css";
+import "./AdminPage.css";
 
 const orderStatuses = [
   "placed",
@@ -22,6 +23,30 @@ const blankProduct = {
   isCustomizable: false,
   isAvailable: true
 };
+
+const getOrderTotal = (order) =>
+  Number(order.totalAmount ?? order.totals?.total ?? order.total ?? 0);
+
+const getOrderStatus = (order) => order.orderStatus || order.status || "placed";
+
+const getShippingLine = (shippingAddress = {}) =>
+  shippingAddress.addressLine || shippingAddress.address || "";
+
+const getCustomerName = (order) =>
+  order.customer?.fullName ||
+  order.customer?.name ||
+  order.user?.name ||
+  order.shippingAddress?.fullName ||
+  order.shippingAddress?.fullname ||
+  "Customer";
+
+const getShipToName = (order) =>
+  order.shippingAddress?.fullName ||
+  order.shippingAddress?.fullname ||
+  order.customer?.fullName ||
+  order.customer?.name ||
+  order.user?.name ||
+  "Customer";
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("products");
@@ -55,7 +80,7 @@ export default function AdminPage() {
 
   const stats = useMemo(() => {
     const revenue = adminOrders.reduce(
-      (sum, order) => sum + Number(order.totals?.total || 0),
+      (sum, order) => sum + getOrderTotal(order),
       0
     );
 
@@ -345,31 +370,133 @@ export default function AdminPage() {
           )}
 
           {activeTab === "orders" && (
-            <div className="admin-list">
-              {adminOrders.length ? adminOrders.map((order) => (
-                <article className="admin-order-row" key={order._id}>
-                  <div>
-                    <h3>{order._id}</h3>
-                    <p className="muted">{new Date(order.createdAt).toLocaleString()}</p>
-                    <p>{order.customer?.fullName || order.customer?.name || "Customer"} / Rs. {order.totals?.total || 0}</p>
-                  </div>
-                  <select
-                    value={order.orderStatus}
-                    onChange={(e) =>
-                      handleStatusChange(order._id, e.target.value)
-                    }
-                  >
-                    {orderStatuses.map((status) => (
-                      <option key={status} value={status}>{status}</option>
-                    ))}
-                  </select>
-                </article>
-              )) : (
-                <div className="empty-state small">No orders yet.</div>
+            <div className="admin-orders-panel">
+              {adminOrders.length ? (
+                adminOrders.map((order) => {
+                  const orderTotal = getOrderTotal(order);
+                  const orderStatus = getOrderStatus(order);
+                  const shippingAddress = order.shippingAddress || {};
+                  const customerEmail = shippingAddress.email || order.user?.email || order.customer?.email;
+                  const customerPhone = shippingAddress.phone || order.user?.phone || order.customer?.phone;
+                  const shipToEmail = shippingAddress.email || customerEmail;
+                  const shipToPhone = shippingAddress.phone || customerPhone;
+
+                  return (
+                    <div className="admin-order-card" key={order._id}>
+                    <div className="order-header">
+                      <div>
+                        <h3>Order #{String(order._id || "").slice(-8)}</h3>
+                        <p className="order-date">
+                          {order.createdAt ? new Date(order.createdAt).toLocaleString() : "Date unavailable"}
+                        </p>
+                      </div>
+
+                      <div className="order-price">
+                        Rs. {orderTotal}
+                      </div>
+                    </div>
+
+                    <div className="order-info-grid">
+                      <div className="order-section">
+                        <h4>Ordered By</h4>
+                        <p>
+                          <strong>{getCustomerName(order)}</strong>
+                        </p>
+                        {order.user?.email || order.customer?.email ? (
+                          <p>{order.user?.email || order.customer?.email}</p>
+                        ) : null}
+                        {order.user?.phone || order.customer?.phone ? (
+                          <p>{order.user?.phone || order.customer?.phone}</p>
+                        ) : null}
+                      </div>
+
+                      <div className="order-section">
+                        <h4>Ship To</h4>
+                        <div className="shipping-contact">
+                          <strong>{getShipToName(order)}</strong>
+                          {shipToPhone && <span>Phone: {shipToPhone}</span>}
+                          {shipToEmail && <span>Email: {shipToEmail}</span>}
+                        </div>
+                        {getShippingLine(shippingAddress) && <p>{getShippingLine(shippingAddress)}</p>}
+                        <p>
+                          {[shippingAddress.city, shippingAddress.state, shippingAddress.pincode]
+                            .filter(Boolean)
+                            .join(", ")}
+                        </p>
+                        {shippingAddress.country && <p>{shippingAddress.country}</p>}
+                      </div>
+                    </div>
+
+                    <div className="order-section order-items-section">
+                      <h4>Items</h4>
+
+                      {order.items?.map((item) => {
+                        const product = item.product || {};
+                        const title = product.title || item.title || "Product";
+                        const quantity = Number(item.quantity || 1);
+                        const unitPrice = Number(product.price ?? item.price ?? item.unitPrice ?? 0);
+                        const lineTotal = unitPrice * quantity;
+
+                        return (
+                          <div key={item._id || title} className="order-item">
+                            <img
+                              className="order-item-image"
+                              src={getImageUrl(product.image || item.image)}
+                              alt={title}
+                            />
+                            <div className="order-item-details">
+                              <strong>{title}</strong>
+                              <span>{product.category || product.occasion || "Greeting card"}</span>
+                            </div>
+                            <div className="order-item-numbers">
+                              <span>Qty: {quantity}</span>
+                              <strong>Rs. {lineTotal}</strong>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div className="order-footer">
+                      <div className="order-badges">
+                        <span className="payment-badge">
+                          {order.paymentStatus || order.paymentMethod || "COD"}
+                        </span>
+                        <span className="payment-badge soft">
+                          {order.paymentMethod || "Cash on delivery"}
+                        </span>
+                      </div>
+
+                      <select
+                        className={`status-select ${orderStatus}`}
+                        value={orderStatus}
+                        onChange={(e) =>
+                          handleStatusChange(
+                            order._id,
+                            e.target.value
+                          )
+                        }
+                      >
+                        {orderStatuses.map((status) => (
+                          <option
+                            key={status}
+                            value={status}
+                          >
+                            {status}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="empty-state">
+                  No orders found
+                </div>
               )}
             </div>
           )}
-
           {activeTab === "users" && (
             <div className="admin-list">
               {users.map((user) => (
