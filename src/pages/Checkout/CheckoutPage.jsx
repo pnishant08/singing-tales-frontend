@@ -1,42 +1,87 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useCart } from "../../context/useCart";
 import { useAuth } from "../../context/useAuth";
+import api from "../../services/api";
 import { readSavedAddresses } from "../../services/addressStorage";
 import "../ecommerce.css";
+
+const getAddressId = (address) => address.id || address._id;
+const getAddressLine = (address) => address.addressLine || address.address || "";
 
 export default function CheckoutPage() {
   const { items, totals, placeOrder } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [savedAddresses] = useState(() => readSavedAddresses());
+  const [savedAddresses, setSavedAddresses] = useState(() => readSavedAddresses());
   const defaultAddress = savedAddresses.find((address) => address.isDefault);
   const [customer, setCustomer] = useState({
     fullName: defaultAddress?.fullName || user?.name || "",
     phone: defaultAddress?.phone || user?.phone || "",
     email: user?.email || "",
-    addressLine: defaultAddress?.addressLine || "",
+    addressLine: defaultAddress ? getAddressLine(defaultAddress) : "",
     city: defaultAddress?.city || "",
     state: defaultAddress?.state || "",
     pincode: defaultAddress?.pincode || "",
     country: defaultAddress?.country || "India",
   });
 
+  useEffect(() => {
+    const loadSavedAddresses = async () => {
+      if (!user) {
+        setSavedAddresses(readSavedAddresses());
+        return;
+      }
+
+      try {
+        const res = await api.get("/user/addresses");
+        const addresses = Array.isArray(res.data) ? res.data : [];
+        const preferredAddress = addresses.find((address) => address.isDefault);
+
+        setSavedAddresses(addresses);
+        setCustomer((current) => {
+          const next = { ...current };
+
+          if (!next.fullName && user?.name) next.fullName = user.name;
+          if (!next.phone && user?.phone) next.phone = user.phone;
+          if (!next.email && user?.email) next.email = user.email;
+
+          if (preferredAddress && !next.addressLine && !next.city && !next.state && !next.pincode) {
+            next.fullName = preferredAddress.fullName || next.fullName;
+            next.phone = preferredAddress.phone || next.phone;
+            next.addressLine = getAddressLine(preferredAddress);
+            next.city = preferredAddress.city || "";
+            next.state = preferredAddress.state || "";
+            next.pincode = preferredAddress.pincode || "";
+            next.country = preferredAddress.country || "India";
+          }
+
+          return next;
+        });
+      } catch (err) {
+        console.log(err);
+        setSavedAddresses([]);
+      }
+    };
+
+    loadSavedAddresses();
+  }, [user]);
+
   const handleChange = (e) => {
     setCustomer({ ...customer, [e.target.name]: e.target.value });
   };
 
   const applySavedAddress = (addressId) => {
-    const address = savedAddresses.find((item) => String(item.id) === addressId);
+    const address = savedAddresses.find((item) => String(getAddressId(item)) === addressId);
     if (!address) return;
 
     setCustomer((current) => ({
       ...current,
       fullName: address.fullName,
       phone: address.phone,
-      addressLine: address.addressLine,
+      addressLine: getAddressLine(address),
       city: address.city,
       state: address.state,
       pincode: address.pincode,
@@ -79,8 +124,10 @@ export default function CheckoutPage() {
       const backendOrder = await placeOrder({
         shippingAddress: {
           fullName: customer.fullName,
+          fullname: customer.fullName,
           phone: customer.phone,
           email: customer.email,
+          address: customer.addressLine,
           addressLine: customer.addressLine,
           city: customer.city,
           state: customer.state,
@@ -98,7 +145,7 @@ export default function CheckoutPage() {
 
 
       toast.success("Order placed");
-      navigate(`/track?order=${backendOrder._id}`);
+      navigate(`/track?order=${orderId}`);
     } catch (err) {
       toast.error(err.response?.data?.error || "Order could not be placed");
     }
@@ -131,7 +178,7 @@ export default function CheckoutPage() {
             <select defaultValue="" onChange={(e) => applySavedAddress(e.target.value)}>
               <option value="">Choose an address</option>
               {savedAddresses.map((address) => (
-                <option key={address.id} value={address.id}>
+                <option key={getAddressId(address)} value={getAddressId(address)}>
                   {address.isDefault ? "Default - " : ""}{address.fullName}, {address.city}
                 </option>
               ))}

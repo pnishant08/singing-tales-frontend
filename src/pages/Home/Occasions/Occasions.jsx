@@ -5,28 +5,23 @@ import "./Occasions.css";
 const occasions = [
   {
     name: "Birthday",
-    image:
-      "https://images.unsplash.com/photo-1464349153735-7db50ed83c84?w=800",
+    image: "/images/birthday.jfif",
   },
   {
     name: "Anniversary",
-    image:
-      "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=800",
+    image: "/images/anniversary.jfif",
   },
   {
     name: "Wedding",
-    image:
-      "https://images.unsplash.com/photo-1519741497674-611481863552?w=800",
+    image: "/images/wedding.jfif",
   },
   {
     name: "Festival",
-    image:
-      "https://images.unsplash.com/photo-1513151233558-d860c5398176?w=800",
+    image: "/images/festival.jfif",
   },
   {
     name: "Custom",
-    image:
-      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800",
+    image: "/images/custom-image.jfif",
   },
 ];
 

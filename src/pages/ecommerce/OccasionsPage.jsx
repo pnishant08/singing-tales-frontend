@@ -3,37 +3,33 @@ import { Link } from "react-router-dom";
 import "./OccasionsPage.css";
 
 const occasions = [
-    {
-        name: "Birthday",
-        text: "Make birthdays unforgettable with personalized singing cards.",
-        image:
-            "https://images.unsplash.com/photo-1464349153735-7db50ed83c84",
-    },
-    {
-        name: "Anniversary",
-        text: "Celebrate love and milestones with romantic musical cards.",
-        image:
-            "https://images.unsplash.com/photo-1511285560929-80b456fea0bc",
-    },
-    {
-        name: "Wedding",
-        text: "Elegant cards crafted for weddings and special ceremonies.",
-        image:
-            "https://images.unsplash.com/photo-1519741497674-611481863552",
-    },
-    {
-        name: "Festival",
-        text: "Spread joy and festive wishes through musical greetings.",
-        image:
-            "https://images.unsplash.com/photo-1577083552431-6e5fd01aa342",
-    },
-    {
-        name: "Custom",
-        text: "Design a one-of-a-kind card with your own message and song.",
-        image:
-            "https://images.unsplash.com/photo-1516321318423-f06f85e504b3",
-    },
+  {
+    name: "Birthday",
+    text: "Make birthdays unforgettable with personalized singing cards.",
+    image: "/images/birthday.jfif",
+  },
+  {
+    name: "Anniversary",
+    text: "Celebrate love and milestones with romantic musical cards.",
+    image: "/images/anniversary.jfif",
+  },
+  {
+    name: "Wedding",
+    text: "Elegant cards crafted for weddings and special ceremonies.",
+    image: "/images/wedding.jfif",
+  },
+  {
+    name: "Festival",
+    text: "Spread joy and festive wishes through musical greetings.",
+    image: "/images/festival.jfif",
+  },
+  {
+    name: "Custom",
+    text: "Design a one-of-a-kind card with your own message and song.",
+    image: "/images/custom-image.jfif",
+  },
 ];
+
 
 export default function OccasionsPage() {
     return (
