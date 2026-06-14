@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState,useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/useAuth";
 import { useCart } from "../../context/useCart";
 import "./Header.css";
+import { getImageUrl } from "../../services/api";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,12 +11,30 @@ const Header = () => {
   const { totals } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (
+      dropdownRef.current &&
+      !dropdownRef.current.contains(event.target)
+    ) {
+      setIsOpen(false);
+    }
+  };
+
+  document.addEventListener("mousedown", handleClickOutside);
+
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
 
   const authState = {
     backgroundLocation: location,
     returnTo: `${location.pathname}${location.search}`,
   };
-
+const avatarUrl = getImageUrl(user?.avatar || "/images/default-avatar.png");
   const handleLogout = () => {
     logout();
     setIsOpen(false);
@@ -47,17 +66,34 @@ const Header = () => {
           </Link>
 
           {user ? (
-            <div className="profile">
+            <div className="profile" ref={dropdownRef}>
               <button
                 className="profile-trigger"
                 onClick={() => setIsOpen((current) => !current)}
                 type="button"
               >
-                {user.name || user.email || "Account"}
+                <img
+                 src={avatarUrl}
+                  alt="Profile"
+                  className="header-avatar"
+                />
               </button>
 
               {isOpen && (
                 <div className="dropdown">
+
+                  <div className="dropdown-user">
+                    <img
+                      src={avatarUrl}
+                      alt="Profile"
+                      className="dropdown-avatar"
+                    />
+
+                    <div>
+                      <strong>{user?.name}</strong>
+                      <p>{user?.email}</p>
+                    </div>
+                  </div>
                   {user.role === "admin" && (
                     <Link to="/admin" onClick={() => setIsOpen(false)}>Admin Dashboard</Link>
                   )}
@@ -65,9 +101,12 @@ const Header = () => {
                   <Link to="/profile" onClick={() => setIsOpen(false)}>Profile</Link>
                   <Link to="/addresses" onClick={() => setIsOpen(false)}>Addresses</Link>
                   <hr />
+
+                  
                   <button className="logout" onClick={handleLogout} type="button">
                     Logout
                   </button>
+                  <hr />
                 </div>
               )}
             </div>
