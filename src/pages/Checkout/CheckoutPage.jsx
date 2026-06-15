@@ -145,7 +145,7 @@ export default function CheckoutPage() {
 
 
       toast.success("Order placed");
-      navigate(`/track?order=${orderId}`);
+      navigate(`/order-success?order=${orderId}`);
     } catch (err) {
       toast.error(err.response?.data?.error || "Order could not be placed");
     }

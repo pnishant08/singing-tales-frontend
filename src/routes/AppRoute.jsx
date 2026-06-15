@@ -17,6 +17,7 @@ import CheckoutPage from "../pages/Checkout/CheckoutPage";
 import TrackOrderPage from "../pages/TrackOrder/TrackOrderPage";
 import CustomizePage from "../pages/Customize/CustomizePage";
 import OrdersPage from "../pages/Orders/OrdersPage";
+import OrderSuccessPage from "../pages/OrderSuccess/OrderSuccessPage";
 import AddressesPage from "../pages/Addresses/AddressesPage";
 import AdminPage from "../pages/Admin/AdminPage";
 import ProtectedRoute from "./ProtectedRoute";
@@ -94,6 +95,14 @@ const AppRoutes = () => {
               element={
                 <ProtectedRoute>
                   <OrdersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/order-success"
+              element={
+                <ProtectedRoute>
+                  <OrderSuccessPage />
                 </ProtectedRoute>
               }
             />

@@ -2,7 +2,7 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../context/useCart";
 import "../ecommerce.css";
-import api from "../../services/api";
+import { getImageUrl } from "../../services/api";
 
 export default function CartPage() {
   const { items, totals, updateQuantity, removeItem } = useCart();
@@ -32,12 +32,8 @@ export default function CartPage() {
           {items.map((item) => (
             <article className="cart-row" key={item._id}>
               <img
-                src={
-                  item.product?.image?.startsWith("/uploads")
-                    ? `${api}${item.product.image}`
-                    : item.product?.image || "/images/card-preview.svg"
-                }
-                alt={item.product?.title}
+                src={getImageUrl(item.product?.image)}
+                alt={item.product?.title || "Cart item"}
               />
 
               <div>
