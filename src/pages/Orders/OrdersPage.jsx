@@ -91,7 +91,7 @@ export default function OrdersPage() {
 
                   <div className="order-meta">
                     <span>
-                      <strong>₹{order.totalAmount || order.total || 0}</strong>
+                      <strong>Rs. {order.totalAmount || order.total || 0}</strong>
                       Total
                     </span>
 
@@ -130,9 +130,12 @@ export default function OrdersPage() {
                       Track Order
                     </Link>
 
-                    <button className="btn-secondary" type="button">
+                    <Link
+                      to={`/orders/${order._id}`}
+                      className="btn-secondary link-button"
+                    >
                       Order Details
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </article>

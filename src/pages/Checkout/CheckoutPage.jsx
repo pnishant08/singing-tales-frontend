@@ -3,8 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useCart } from "../../context/useCart";
 import { useAuth } from "../../context/useAuth";
-import api from "../../services/api";
-import { readSavedAddresses } from "../../services/addressStorage";
+import { readSavedAddresses, writeSavedAddresses } from "../../services/addressStorage";
 import "../ecommerce.css";
 
 const getAddressId = (address) => address.id || address._id;
@@ -30,40 +29,35 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     const loadSavedAddresses = async () => {
-      if (!user) {
-        setSavedAddresses(readSavedAddresses());
-        return;
+      const addresses = user && Array.isArray(user.addresses)
+        ? user.addresses
+        : readSavedAddresses();
+      const preferredAddress = addresses.find((address) => address.isDefault);
+
+      setSavedAddresses(addresses);
+      if (user) {
+        writeSavedAddresses(addresses);
       }
 
-      try {
-        const res = await api.get("/user/addresses");
-        const addresses = Array.isArray(res.data) ? res.data : [];
-        const preferredAddress = addresses.find((address) => address.isDefault);
+      setCustomer((current) => {
+        const next = { ...current };
 
-        setSavedAddresses(addresses);
-        setCustomer((current) => {
-          const next = { ...current };
+        if (!next.fullName && user?.name) next.fullName = user.name;
+        if (!next.phone && user?.phone) next.phone = user.phone;
+        if (!next.email && user?.email) next.email = user.email;
 
-          if (!next.fullName && user?.name) next.fullName = user.name;
-          if (!next.phone && user?.phone) next.phone = user.phone;
-          if (!next.email && user?.email) next.email = user.email;
+        if (preferredAddress && !next.addressLine && !next.city && !next.state && !next.pincode) {
+          next.fullName = preferredAddress.fullName || next.fullName;
+          next.phone = preferredAddress.phone || next.phone;
+          next.addressLine = getAddressLine(preferredAddress);
+          next.city = preferredAddress.city || "";
+          next.state = preferredAddress.state || "";
+          next.pincode = preferredAddress.pincode || "";
+          next.country = preferredAddress.country || "India";
+        }
 
-          if (preferredAddress && !next.addressLine && !next.city && !next.state && !next.pincode) {
-            next.fullName = preferredAddress.fullName || next.fullName;
-            next.phone = preferredAddress.phone || next.phone;
-            next.addressLine = getAddressLine(preferredAddress);
-            next.city = preferredAddress.city || "";
-            next.state = preferredAddress.state || "";
-            next.pincode = preferredAddress.pincode || "";
-            next.country = preferredAddress.country || "India";
-          }
-
-          return next;
-        });
-      } catch (err) {
-        console.log(err);
-        setSavedAddresses([]);
-      }
+        return next;
+      });
     };
 
     loadSavedAddresses();

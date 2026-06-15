@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import api from "../../services/api";
+import { useAuth } from "../../context/useAuth";
+import { readSavedAddresses, writeSavedAddresses } from "../../services/addressStorage";
 import "../ecommerce.css";
 
 const blankAddress = {
@@ -15,8 +16,14 @@ const blankAddress = {
 };
 
 const getAddressId = (address) => address.id || address._id;
+const sameAddressId = (address, id) => String(getAddressId(address)) === String(id);
+const withAddressId = (address) => ({
+  ...address,
+  id: getAddressId(address) || `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+});
 
 export default function AddressesPage() {
+  const { user, updateProfile } = useAuth();
   const [addresses, setAddresses] = useState([]);
   const [form, setForm] = useState(blankAddress);
   const [loading, setLoading] = useState(true);
@@ -24,18 +31,17 @@ export default function AddressesPage() {
 
   useEffect(() => {
     const loadAddresses = async () => {
-      try {
-        const res = await api.get("/user/addresses");
-        setAddresses(Array.isArray(res.data) ? res.data : []);
-      } catch (err) {
-        toast.error(err.response?.data?.error || "Could not load addresses");
-      } finally {
-        setLoading(false);
-      }
+      const profileAddresses = Array.isArray(user?.addresses) ? user.addresses : [];
+      const localAddresses = readSavedAddresses();
+      const nextAddresses = profileAddresses.length ? profileAddresses : localAddresses;
+
+      setAddresses(nextAddresses);
+      writeSavedAddresses(nextAddresses);
+      setLoading(false);
     };
 
     loadAddresses();
-  }, []);
+  }, [user]);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -50,8 +56,14 @@ export default function AddressesPage() {
 
     try {
       setSaving(true);
-      const res = await api.post("/user/addresses", form);
-      setAddresses((current) => [res.data, ...current]);
+      const newAddress = withAddressId(form);
+      const nextAddresses = form.isDefault
+        ? [newAddress, ...addresses.map((address) => ({ ...address, isDefault: false }))]
+        : [newAddress, ...addresses];
+
+      await updateProfile({ addresses: nextAddresses });
+      setAddresses(nextAddresses);
+      writeSavedAddresses(nextAddresses);
       setForm(blankAddress);
       toast.success("Address saved");
     } catch (err) {
@@ -63,24 +75,14 @@ export default function AddressesPage() {
 
   const markDefault = async (id) => {
     try {
-      const res = await api.patch(`/user/addresses/${id}/default`);
-      const updatedAddress = res.data;
+      const nextAddresses = addresses.map((address) => ({
+        ...address,
+        isDefault: sameAddressId(address, id),
+      }));
 
-      setAddresses((current) =>
-        current.map((address) => ({
-          ...address,
-          isDefault: getAddressId(address) === id,
-        }))
-      );
-
-      if (updatedAddress) {
-        setAddresses((current) =>
-          current.map((address) =>
-            getAddressId(address) === id ? { ...address, ...updatedAddress } : address
-          )
-        );
-      }
-
+      await updateProfile({ addresses: nextAddresses });
+      setAddresses(nextAddresses);
+      writeSavedAddresses(nextAddresses);
       toast.success("Default address updated");
     } catch (err) {
       toast.error(err.response?.data?.error || "Default update failed");
@@ -89,8 +91,11 @@ export default function AddressesPage() {
 
   const deleteAddress = async (id) => {
     try {
-      await api.delete(`/user/addresses/${id}`);
-      setAddresses((current) => current.filter((address) => getAddressId(address) !== id));
+      const nextAddresses = addresses.filter((address) => !sameAddressId(address, id));
+
+      await updateProfile({ addresses: nextAddresses });
+      setAddresses(nextAddresses);
+      writeSavedAddresses(nextAddresses);
       toast.success("Address deleted");
     } catch (err) {
       toast.error(err.response?.data?.error || "Address delete failed");

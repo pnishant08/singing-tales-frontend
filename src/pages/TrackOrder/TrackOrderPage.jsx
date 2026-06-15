@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useCart } from "../../context/useCart";
-import { getImageUrl } from "../../services/api";
 import "../ecommerce.css";
 import "./TrackOrderPage.css";
 
@@ -14,9 +13,6 @@ const orderSteps = [
 
 const getOrderId = (order) => order?._id || order?.id || "";
 const getOrderStatus = (order) => (order?.orderStatus || order?.status || "placed").toLowerCase();
-const getOrderTotal = (order) => Number(order?.totalAmount ?? order?.totals?.total ?? order?.total ?? 0);
-const getShippingLine = (shippingAddress = {}) =>
-  shippingAddress.addressLine || shippingAddress.address || "";
 
 const getEtaText = (order) => {
   if (order?.eta) return order.eta;
@@ -61,7 +57,6 @@ export default function TrackOrderPage() {
     ? -1
     : Math.max(0, orderSteps.findIndex((step) => step.key === status));
   const shippingAddress = order?.shippingAddress || {};
-  const items = order?.items || [];
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -122,71 +117,32 @@ export default function TrackOrderPage() {
                 ))}
               </div>
             </article>
-
-            <article className="tracking-card">
-              <div className="tracking-section-heading">
-                <div>
-                  <p className="eyebrow">Items</p>
-                  <h2>Shipment contents</h2>
-                </div>
-                <span className="tracking-count">{items.length} items</span>
-              </div>
-
-              <div className="tracking-items">
-                {items.map((item) => {
-                  const product = item.product || {};
-                  const title = product.title || item.title || "Singing Card";
-                  const quantity = Number(item.quantity || 1);
-                  const price = Number(product.price ?? item.price ?? item.unitPrice ?? 0);
-
-                  return (
-                    <div className="tracking-item" key={item._id || title}>
-                      <img src={getImageUrl(product.image || item.image)} alt={title} />
-                      <div>
-                        <strong>{title}</strong>
-                        <span>{product.category || product.occasion || "Greeting card"}</span>
-                      </div>
-                      <div className="tracking-item-total">
-                        <span>Qty {quantity}</span>
-                        <strong>Rs. {price * quantity}</strong>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </article>
           </div>
 
           <aside className="tracking-side">
             <article className="tracking-card">
-              <p className="eyebrow">Delivery address</p>
+              <p className="eyebrow">Delivery snapshot</p>
               <h2>Ship to</h2>
-              <div className="tracking-address">
+              <div className="tracking-address compact">
                 <strong>{shippingAddress.fullName || shippingAddress.fullname || "Recipient"}</strong>
                 <span>{shippingAddress.phone || "Phone not added"}</span>
-                <span>{shippingAddress.email || "Email not added"}</span>
-                {getShippingLine(shippingAddress) && <p>{getShippingLine(shippingAddress)}</p>}
                 <p>
-                  {[shippingAddress.city, shippingAddress.state, shippingAddress.pincode]
+                  {[shippingAddress.city, shippingAddress.state]
                     .filter(Boolean)
                     .join(", ")}
                 </p>
-                <p>{shippingAddress.country || "India"}</p>
               </div>
             </article>
 
             <article className="tracking-card">
-              <p className="eyebrow">Payment</p>
-              <h2>Order total</h2>
-              <div className="tracking-summary">
-                <p><span>Payment</span><strong>{order.paymentMethod || "COD"}</strong></p>
-                <p><span>Status</span><strong>{order.paymentStatus || "pending"}</strong></p>
-                <p className="tracking-summary-total"><span>Total</span><strong>Rs. {getOrderTotal(order)}</strong></p>
-              </div>
+              <p className="eyebrow">Details</p>
+              <h2>Need the receipt?</h2>
+              <p className="muted">Open order details for items, full address, payment status, and invoice-style totals.</p>
             </article>
 
             <div className="tracking-actions">
-              <Link to="/orders" className="btn-primary link-button">View order history</Link>
+              <Link to={`/orders/${getOrderId(order)}`} className="btn-primary link-button">Order details</Link>
+              <Link to="/orders" className="btn-secondary link-button">View order history</Link>
               <Link to="/shop" className="btn-secondary link-button">Continue shopping</Link>
             </div>
           </aside>

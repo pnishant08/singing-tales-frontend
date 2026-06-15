@@ -1,15 +1,12 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useCart } from "../../context/useCart";
-import { getImageUrl } from "../../services/api";
 import "../ecommerce.css";
 import "./OrderSuccessPage.css";
 
 const getOrderId = (order) => order?._id || order?.id || "";
 const getOrderTotal = (order) => Number(order?.totalAmount ?? order?.totals?.total ?? order?.total ?? 0);
 const getOrderStatus = (order) => order?.orderStatus || order?.status || "placed";
-const getShippingLine = (shippingAddress = {}) =>
-  shippingAddress.addressLine || shippingAddress.address || "";
 
 const getEtaText = (order) => {
   if (order?.eta) return order.eta;
@@ -41,8 +38,6 @@ export default function OrderSuccessPage() {
     return orders.find((item) => String(getOrderId(item)) === orderId);
   }, [orderId, orders]);
 
-  const shippingAddress = order?.shippingAddress || {};
-  const items = order?.items || [];
   const total = getOrderTotal(order);
   const status = getOrderStatus(order);
 
@@ -64,6 +59,11 @@ export default function OrderSuccessPage() {
           <Link to="/orders" className="btn-secondary link-button">
             View all orders
           </Link>
+          {orderId && (
+            <Link to={`/orders/${orderId}`} className="btn-secondary link-button">
+              Order details
+            </Link>
+          )}
         </div>
       </div>
 
@@ -96,64 +96,18 @@ export default function OrderSuccessPage() {
                 Estimated delivery
               </span>
             </div>
-          </article>
 
-          <article className="success-card">
-            <div className="success-card-heading">
-              <div>
-                <p className="eyebrow">Items</p>
-                <h2>What you ordered</h2>
+            {orderId && (
+              <div className="success-details-note">
+                <strong>Need the full receipt?</strong>
+                <span>Item list, shipping address, payment status, and price breakdown are saved in order details.</span>
+                <Link to={`/orders/${orderId}`} className="text-button">Open order details</Link>
               </div>
-              <span className="success-count">{items.length || 0} items</span>
-            </div>
-
-            {items.length ? (
-              <div className="success-items">
-                {items.map((item) => {
-                  const product = item.product || {};
-                  const title = product.title || item.title || "Singing Card";
-                  const quantity = Number(item.quantity || 1);
-                  const price = Number(product.price ?? item.price ?? item.unitPrice ?? 0);
-
-                  return (
-                    <div className="success-item" key={item._id || title}>
-                      <img src={getImageUrl(product.image || item.image)} alt={title} />
-                      <div>
-                        <strong>{title}</strong>
-                        <span>{product.category || product.occasion || "Greeting card"}</span>
-                      </div>
-                      <div className="success-item-total">
-                        <span>Qty {quantity}</span>
-                        <strong>Rs. {price * quantity}</strong>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <p className="muted">Order items will appear here once the order syncs.</p>
             )}
           </article>
         </div>
 
         <aside className="success-side">
-          <article className="success-card">
-            <p className="eyebrow">Delivery</p>
-            <h2>Shipping details</h2>
-            <div className="success-address">
-              <strong>{shippingAddress.fullName || shippingAddress.fullname || "Recipient"}</strong>
-              <span>{shippingAddress.phone || "Phone not added"}</span>
-              <span>{shippingAddress.email || "Email not added"}</span>
-              {getShippingLine(shippingAddress) && <p>{getShippingLine(shippingAddress)}</p>}
-              <p>
-                {[shippingAddress.city, shippingAddress.state, shippingAddress.pincode]
-                  .filter(Boolean)
-                  .join(", ")}
-              </p>
-              <p>{shippingAddress.country || "India"}</p>
-            </div>
-          </article>
-
           <article className="success-card next-steps-card">
             <p className="eyebrow">Next steps</p>
             <h2>What happens now</h2>

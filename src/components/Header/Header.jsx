@@ -34,7 +34,7 @@ const Header = () => {
     backgroundLocation: location,
     returnTo: `${location.pathname}${location.search}`,
   };
-const avatarUrl = getImageUrl(user?.avatar || "/images/default-avatar.png");
+const avatarUrl = getImageUrl(user?.avatar || "/images/card-preview.svg");
   const handleLogout = () => {
     logout();
     setIsOpen(false);
