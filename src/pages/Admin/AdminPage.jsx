@@ -498,33 +498,111 @@ export default function AdminPage() {
             </div>
           )}
           {activeTab === "users" && (
-            <div className="admin-list">
-              {users.map((user) => (
-                <article className="admin-user-row" key={user.email}>
-                  <div>
-                    <h3>{user.name || user.username || user.email}</h3>
-                    <p>{user.email}</p>
-                    <p className="muted">{user.phone || "No phone"} / Last login {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : "Unknown"}</p>
-                  </div>
-                  <select
-                    value={user.role || "user"}
-                    onChange={(e) => updateUser(user.email, { role: e.target.value })}
-                  >
-                    <option value="user">user</option>
-                    <option value="admin">admin</option>
-                  </select>
-                  <span className="status-pill">{user.isBlocked || user.blocked ? "Blocked" : "Active"}</span>
-                  <button
-                    className="btn-secondary compact"
-                    onClick={() => updateUser(user.email, { isBlocked: !(user.isBlocked || user.blocked) })}
-                    type="button"
-                  >
-                    {user.isBlocked || user.blocked ? "Unblock" : "Block"}
-                  </button>
-                </article>
-              ))}
+  <div className="admin-users-grid">
+    {users.map((user) => {
+      const isBlocked = user.isBlocked || user.blocked;
+      const isVerified = user.isVerified || user.verified;
+      const fullName = user.name || user.username || "Unknown User";
+      const avatar = getImageUrl(user.avatar || "/images/default-avatar.png");
+      const addresses = user.addresses || [];
+      const defaultAddress =
+        addresses.find((address) => address.isDefault) || addresses[0];
+
+      return (
+        <article className="admin-user-card" key={user.email}>
+          <div className="admin-user-top">
+           <img src={avatar} alt={fullName} className="admin-user-avatar" />
+
+            <div className="admin-user-main">
+              <div className="admin-user-title">
+                <h3>{fullName}</h3>
+                <span className={isBlocked ? "status-pill danger" : "status-pill"}>
+                  {isBlocked ? "Blocked" : "Active"}
+                </span>
+              </div>
+
+              <p>{user.email}</p>
+              <p className="muted">{user.phone || "No phone added"}</p>
             </div>
-          )}
+          </div>
+
+          <div className="admin-user-stats">
+            <span>
+              <strong>{user.role || "user"}</strong>
+              Role
+            </span>
+            <span>
+              <strong>{isVerified ? "Verified" : "Pending"}</strong>
+              Email
+            </span>
+            <span>
+              <strong>{addresses.length}</strong>
+              Addresses
+            </span>
+            <span>
+              <strong>{user.ordersCount || 0}</strong>
+              Orders
+            </span>
+          </div>
+
+          <div className="admin-user-details">
+            <p>
+              <strong>Username:</strong> {user.username || "Not added"}
+            </p>
+            <p>
+              <strong>Last login:</strong>{" "}
+              {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : "Unknown"}
+            </p>
+            <p>
+              <strong>Joined:</strong>{" "}
+              {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "Unknown"}
+            </p>
+
+            {defaultAddress ? (
+              <p>
+                <strong>Default address:</strong>{" "}
+                {[
+                  defaultAddress.addressLine || defaultAddress.address,
+                  defaultAddress.city,
+                  defaultAddress.state,
+                  defaultAddress.pincode,
+                  defaultAddress.country || "India",
+                ]
+                  .filter(Boolean)
+                  .join(", ")}
+              </p>
+            ) : (
+              <p>
+                <strong>Default address:</strong> No address saved
+              </p>
+            )}
+          </div>
+
+          <div className="admin-user-actions">
+            <label>
+              Change role
+              <select
+                value={user.role || "user"}
+                onChange={(e) => updateUser(user.email, { role: e.target.value })}
+              >
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
+            </label>
+
+            <button
+              className={isBlocked ? "btn-secondary compact" : "btn-danger compact"}
+              onClick={() => updateUser(user.email, { isBlocked: !isBlocked })}
+              type="button"
+            >
+              {isBlocked ? "Unblock user" : "Block user"}
+            </button>
+          </div>
+        </article>
+      );
+    })}
+  </div>
+)}
         </>
       )}
     </section>
