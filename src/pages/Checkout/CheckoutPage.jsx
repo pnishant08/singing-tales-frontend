@@ -14,6 +14,7 @@ export default function CheckoutPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [placingOrder, setPlacingOrder] = useState(false);
   const [savedAddresses, setSavedAddresses] = useState(() => readSavedAddresses());
   const defaultAddress = savedAddresses.find((address) => address.isDefault);
   const [customer, setCustomer] = useState({
@@ -28,7 +29,7 @@ export default function CheckoutPage() {
   });
 
   useEffect(() => {
-    const loadSavedAddresses = async () => {
+    const loadSavedAddresses = () => {
       const addresses = user && Array.isArray(user.addresses)
         ? user.addresses
         : readSavedAddresses();
@@ -115,6 +116,7 @@ export default function CheckoutPage() {
     }
 
     try {
+      setPlacingOrder(true);
       const backendOrder = await placeOrder({
         shippingAddress: {
           fullName: customer.fullName,
@@ -141,6 +143,7 @@ export default function CheckoutPage() {
       toast.success("Order placed");
       navigate(`/order-success?order=${orderId}`);
     } catch (err) {
+      setPlacingOrder(false);
       toast.error(err.response?.data?.error || "Order could not be placed");
     }
   };
@@ -190,8 +193,8 @@ export default function CheckoutPage() {
           <label>Country<input name="country" value={customer.country} onChange={handleChange} /></label>
         </div>
         <label>Address line<textarea name="addressLine" rows="4" value={customer.addressLine} onChange={handleChange} /></label>
-        <button className="btn-primary" onClick={submitOrder}>
-          {user ? "Place order" : "Login to place order"}
+        <button className="btn-primary" onClick={submitOrder} disabled={placingOrder}>
+          {placingOrder ? "Placing order..." : user ? "Place order" : "Login to place order"}
         </button>
       </div>
 
