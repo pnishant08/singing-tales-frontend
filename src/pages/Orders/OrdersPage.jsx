@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "../../context/useCart";
 import { getImageUrl } from "../../services/api";
@@ -18,9 +18,26 @@ const getStepIndex = (status) => {
 export default function OrdersPage() {
   const { orders, fetchOrders } = useCart();
 
+  const [loadingOrders, setLoadingOrders] = useState(false);
+  const [ordersError, setOrdersError] = useState("");
+
+  const loadOrders = useCallback(async () => {
+    try {
+      setLoadingOrders(true);
+      setOrdersError("");
+
+      await fetchOrders();
+    } catch (error) {
+      console.error(error);
+      setOrdersError("Failed to load orders. Please try again.");
+    } finally {
+      setLoadingOrders(false);
+    }
+  }, [fetchOrders]);
+
   useEffect(() => {
-    fetchOrders();
-  }, []);
+    loadOrders();
+  }, [loadOrders]);
 
   return (
     <section className="commerce-page">
@@ -31,7 +48,21 @@ export default function OrdersPage() {
         </div>
       </div>
 
-      {orders.length ? (
+      {loadingOrders ? (
+        <div className="empty-state">
+          <h2>Loading orders...</h2>
+          <p>Please wait while we fetch your orders.</p>
+        </div>
+      ) : ordersError ? (
+        <div className="empty-state">
+          <h2>Unable to load orders</h2>
+          <p>{ordersError}</p>
+
+          <button onClick={loadOrders} className="btn-primary link-button">
+            Retry
+          </button>
+        </div>
+      ) : orders.length ? (
         <div className="orders-grid">
           {orders.map((order) => {
             const status = getOrderStatus(order);
@@ -53,18 +84,13 @@ export default function OrdersPage() {
                   <div className="order-header">
                     <div>
                       <h3>{title}</h3>
+                      <p className="muted">Order ID: #{order._id.slice(-8)}</p>
                       <p className="muted">
-                        Order ID: #{order._id.slice(-8)}
-                      </p>
-                      <p className="muted">
-                        Ordered on{" "}
-                        {new Date(order.createdAt).toLocaleDateString()}
+                        Ordered on {new Date(order.createdAt).toLocaleDateString()}
                       </p>
                     </div>
 
-                    <span className={`order-status ${status}`}>
-                      {status}
-                    </span>
+                    <span className={`order-status ${status}`}>{status}</span>
                   </div>
 
                   <div
@@ -101,9 +127,7 @@ export default function OrdersPage() {
                     </span>
 
                     <span>
-                      <strong>
-                        {order.paymentStatus || "pending"}
-                      </strong>
+                      <strong>{order.paymentStatus || "pending"}</strong>
                       Payment
                     </span>
                   </div>

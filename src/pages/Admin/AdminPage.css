@@ -149,6 +149,22 @@
   gap: 8px;
 }
 
+.order-status-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.order-status-controls label {
+  display: grid;
+  gap: 6px;
+  color: #667085;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
 .payment-badge {
   padding: 7px 12px;
   border-radius: 999px;
@@ -199,6 +215,18 @@
   background: #ffe0e0;
 }
 
+.status-select.payment-pending {
+  background: #fff2c8;
+}
+
+.status-select.payment-success {
+  background: #def7e6;
+}
+
+.status-select.payment-failed {
+  background: #ffe0e0;
+}
+
 @media (max-width: 700px) {
   .order-header,
   .order-footer {
@@ -222,6 +250,15 @@
   }
 
   .status-select {
+    width: 100%;
+  }
+
+  .order-status-controls {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .order-status-controls label {
     width: 100%;
   }
 }
