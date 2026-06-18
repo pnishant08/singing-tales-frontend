@@ -12,6 +12,12 @@ const orderStatuses = [
   "cancelled"
 ];
 
+const paymentStatuses = [
+  "pending",
+  "success",
+  "failed"
+];
+
 const blankProduct = {
   title: "",
   description: "",
@@ -28,6 +34,7 @@ const getOrderTotal = (order) =>
   Number(order.totalAmount ?? order.totals?.total ?? order.total ?? 0);
 
 const getOrderStatus = (order) => order.orderStatus || order.status || "placed";
+const getPaymentStatus = (order) => order.paymentStatus || "pending";
 
 const getShippingLine = (shippingAddress = {}) =>
   shippingAddress.addressLine || shippingAddress.address || "";
@@ -199,6 +206,25 @@ export default function AdminPage() {
     } catch (err) {
       console.error("STATUS UPDATE ERROR:", err.response?.data || err);
       toast.error(err.response?.data?.error || "Failed to update status");
+    }
+  };
+
+  const handlePaymentStatusChange = async (orderId, paymentStatus) => {
+    try {
+      const res = await api.put(`/order/${orderId}/status`, {
+        paymentStatus:paymentStatus,
+      });
+
+      setAdminOrders((current) =>
+        current.map((order) =>
+          order._id === orderId ? res.data : order
+        )
+      );
+
+      toast.success("Payment status updated");
+    } catch (err) {
+      console.error("PAYMENT STATUS UPDATE ERROR:", err.response?.data || err);
+      toast.error(err.response?.data?.error || "Failed to update payment status");
     }
   };
 
@@ -375,6 +401,7 @@ export default function AdminPage() {
                 adminOrders.map((order) => {
                   const orderTotal = getOrderTotal(order);
                   const orderStatus = getOrderStatus(order);
+                  const paymentStatus = getPaymentStatus(order);
                   const shippingAddress = order.shippingAddress || {};
                   const customerEmail = shippingAddress.email || order.user?.email || order.customer?.email;
                   const customerPhone = shippingAddress.phone || order.user?.phone || order.customer?.phone;
@@ -460,32 +487,60 @@ export default function AdminPage() {
                     <div className="order-footer">
                       <div className="order-badges">
                         <span className="payment-badge">
-                          {order.paymentStatus || order.paymentMethod || "COD"}
+                          {paymentStatus}
                         </span>
                         <span className="payment-badge soft">
                           {order.paymentMethod || "Cash on delivery"}
                         </span>
                       </div>
 
-                      <select
-                        className={`status-select ${orderStatus}`}
-                        value={orderStatus}
-                        onChange={(e) =>
-                          handleStatusChange(
-                            order._id,
-                            e.target.value
-                          )
-                        }
-                      >
-                        {orderStatuses.map((status) => (
-                          <option
-                            key={status}
-                            value={status}
+                      <div className="order-status-controls">
+                        <label>
+                          Order status
+                          <select
+                            className={`status-select ${orderStatus}`}
+                            value={orderStatus}
+                            onChange={(e) =>
+                              handleStatusChange(
+                                order._id,
+                                e.target.value
+                              )
+                            }
                           >
-                            {status}
-                          </option>
-                        ))}
-                      </select>
+                            {orderStatuses.map((status) => (
+                              <option
+                                key={status}
+                                value={status}
+                              >
+                                {status}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+
+                        <label>
+                          Payment status
+                          <select
+                            className={`status-select payment-${paymentStatus}`}
+                            value={paymentStatus}
+                            onChange={(e) =>
+                              handlePaymentStatusChange(
+                                order._id,
+                                e.target.value
+                              )
+                            }
+                          >
+                            {paymentStatuses.map((status) => (
+                              <option
+                                key={status}
+                                value={status}
+                              >
+                                {status}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                      </div>
                     </div>
                     </div>
                   );
