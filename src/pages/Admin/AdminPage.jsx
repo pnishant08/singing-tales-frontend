@@ -62,6 +62,7 @@ export default function AdminPage() {
   const [users, setUsers] = useState([]);
   const [productForm, setProductForm] = useState(blankProduct);
   const [loading, setLoading] = useState(true);
+  const [deletingUserId, setDeletingUserId] = useState(null);
 
   useEffect(() => {
     const loadAdminData = async () => {
@@ -239,6 +240,31 @@ export default function AdminPage() {
       );
     } catch (err) {
       toast.error(err.response?.data?.error || "User update failed");
+    }
+  };
+
+  const deleteUser = async (user) => {
+    if (!user._id) {
+      toast.error("This user does not have a valid id");
+      return;
+    }
+
+    const displayName = user.name || user.username || user.email || "this user";
+    const confirmed = window.confirm(
+      `Delete ${displayName}? This action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setDeletingUserId(user._id);
+      await api.delete(`/admin/users/${user._id}`);
+      setUsers((current) => current.filter((item) => item._id !== user._id));
+      toast.success("User deleted");
+    } catch (err) {
+      toast.error(err.response?.data?.error || "User delete failed");
+    } finally {
+      setDeletingUserId(null);
     }
   };
 
@@ -564,7 +590,7 @@ export default function AdminPage() {
         addresses.find((address) => address.isDefault) || addresses[0];
 
       return (
-        <article className="admin-user-card" key={user.email}>
+        <article className="admin-user-card" key={user._id || user.email}>
           <div className="admin-user-top">
            <img src={avatar} alt={fullName} className="admin-user-avatar" />
 
@@ -651,6 +677,15 @@ export default function AdminPage() {
               type="button"
             >
               {isBlocked ? "Unblock user" : "Block user"}
+            </button>
+
+            <button
+              className="btn-danger compact"
+              disabled={deletingUserId === user._id}
+              onClick={() => deleteUser(user)}
+              type="button"
+            >
+              {deletingUserId === user._id ? "Deleting..." : "Delete user"}
             </button>
           </div>
         </article>
